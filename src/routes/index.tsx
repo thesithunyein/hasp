@@ -92,8 +92,11 @@ function Home() {
             <p className="font-display text-2xl tracking-tight">Hasp</p>
           </div>
           <h1 className="font-display mt-10 text-5xl leading-none text-balance text-ink md:text-6xl">
-            NEAR moves only through this clasp.
+            An agent spends only through this clasp.
           </h1>
+          <p className="mt-6 max-w-sm text-pretty text-mute">
+            Outside the rule, the quote is dropped. Nothing is deposited.
+          </p>
           <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-line pt-6">
             <Fact k="At most" v="0.02 NEAR" />
             <Fact k="Into" v="USDC" />

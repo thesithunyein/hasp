@@ -1,5 +1,6 @@
 {
-  "name": "app-builder-workspace",
+  "name": "hasp",
+  "description": "An agent may swap NEAR only inside a rule. At most 0.02 NEAR, USDC only, once.",
   "private": true,
   "sideEffects": false,
   "type": "module",
