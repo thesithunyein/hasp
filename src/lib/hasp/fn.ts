@@ -232,7 +232,12 @@ export const checkRule = createServerFn({ method: "POST" })
         clasp,
       };
     }
-    const current = await sync(data.account);
+    let current: ClaspView;
+    try {
+      current = await sync(data.account);
+    } catch {
+      current = viewOf(emptyRow(data.account));
+    }
     if (current.phase === "settled") {
       return {
         outcome: "dropped" as const,
@@ -308,7 +313,16 @@ export const openDeposit = createServerFn({ method: "POST" })
         clasp: viewOf(emptyRow(data.account)),
       };
     }
-    const current = await sync(data.account);
+    let current: ClaspView;
+    try {
+      current = await sync(data.account);
+    } catch {
+      return {
+        outcome: "failed" as const,
+        message: "Deposit failed. The clasp could not be saved. Nothing was deposited.",
+        clasp: viewOf(emptyRow(data.account)),
+      };
+    }
     if (current.phase !== "open") {
       return {
         outcome: "dropped" as const,

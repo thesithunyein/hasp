@@ -4,6 +4,8 @@ An agent may swap NEAR only inside a rule.
 
 At most 0.02 NEAR. USDC only. Once per agent account.
 
+Site: https://theclasp.vercel.app
+
 A quote that breaks the rule is dropped. Nothing is deposited. A quote that fits can open one NEAR Intents deposit. Hasp holds no keys. Until that NEAR arrives, nothing is deposited. If the deposit fails, it stops and says so. Settled is shown only when NEAR Intents reports it.
 
 Track: Agent Economy (`agents`).
@@ -28,7 +30,7 @@ node scripts/hasp-agent.mjs 0.02 name.near
 
 See `FITS`, then a USDC amount. Nothing is deposited.
 
-On the site, enter that same agent account.
+On https://theclasp.vercel.app, enter that same agent account.
 
 1. Amount `0.03`. Check. The quote is shown, then dropped.
 2. Amount `0.02`. Check. The quote fits. Nothing is deposited yet.
