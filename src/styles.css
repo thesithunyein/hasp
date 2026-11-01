@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f3f0e8;
+  --color-card: #fbfaf6;
+  --color-ink: #1a1714;
+  --color-mute: #6e675f;
+  --color-line: #e3ddd3;
+  --color-clasp: #9a5b32;
+  --color-on-clasp: #fbfaf6;
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Outfit", "Avenir Next", "Segoe UI", sans-serif;
+  --radius-card: 1.5rem;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+.mark {
+  perspective: 48rem;
+}
+.mark-inner {
+  transform: rotateX(14deg) rotateY(-22deg);
+  transform-style: preserve-3d;
+}
+.mark-back {
+  transform: translateZ(-0.55rem);
+}
+.mark:hover .mark-inner {
+  transform: rotateX(8deg) rotateY(-8deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mark-inner,
+  .mark:hover .mark-inner {
+    transform: none;
+    transition: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mark-inner {
+    transition: transform 400ms ease;
+  }
+}

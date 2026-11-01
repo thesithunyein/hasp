@@ -1,0 +1,10 @@
+node_modules
+.vercel
+screenshots
+dist
+.grok
+*.log
+.DS_Store
+artifacts/searched_images
+artifacts/imagine_images
+artifacts/imagine_videos
