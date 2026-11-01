@@ -1,17 +1,27 @@
 # Hasp
 
-NEAR moves only through this clasp.
+An agent may swap NEAR only through this clasp.
 
 - At most 0.02 NEAR
 - USDC only
-- Once
+- Once per agent account
 
 A quote that breaks the rule is dropped. Nothing is deposited.
-A quote that fits can open a NEAR Intents deposit. Hasp holds no keys. Until the NEAR arrives, nothing is deposited. If the deposit fails, it stops and says so.
+A quote that fits can open one NEAR Intents deposit for that account. Hasp holds no keys. Until the NEAR arrives, nothing is deposited. If the deposit fails, it stops and says so.
 
-## Try
+## Other project
 
-1. Enter a NEAR account and an amount.
-2. Check. Above 0.02 NEAR is dropped.
-3. Open deposit only when the quote fits. Send that exact NEAR to the address shown.
-4. Read status. Settled only when NEAR Intents reports it.
+Independent of [Kyrona](https://github.com/thesithunyein/kyrona). Kyrona is a spending desk with its own contract and its own key. Hasp does not use that contract, that key, or that desk.
+
+## Run the agent
+
+The agent asks for a dry quote. It never sends NEAR.
+
+```sh
+node scripts/hasp-agent.mjs 0.03 name.near
+node scripts/hasp-agent.mjs 0.02 name.near
+```
+
+The first prints `DROPPED`. The second prints `FITS` and the USDC amount. Neither deposits.
+
+On the site, enter that agent account and the same amount. Check, then open the deposit only if it fits. Read status. Settled only when NEAR Intents says so.

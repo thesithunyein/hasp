@@ -43,8 +43,20 @@ type QuoteBody = {
 
 type QuoteResponse = {
   quote?: QuoteBody;
-  correlationId?: string;
 };
+
+function emptyRow(account: string): Row {
+  return {
+    phase: "open",
+    deposit_address: null,
+    amount_in: null,
+    amount_out: null,
+    amount_out_usd: null,
+    account_id: account,
+    deadline: null,
+    notice: null,
+  };
+}
 
 function viewOf(row: Row, chainStatus: string | null = null): ClaspView {
   return {
@@ -64,16 +76,14 @@ async function sql() {
   return getSql();
 }
 
-async function load(): Promise<Row> {
+async function load(account: string): Promise<Row> {
   const db = await sql();
   const rows = await db<Row>`
     select phase, deposit_address, amount_in, amount_out, amount_out_usd,
            account_id, deadline, notice
-    from hasp_clasp where id = 1
+    from hasp_agent where account_id = ${account}
   `;
-  const row = rows[0];
-  if (!row) throw new Error("Clasp is missing.");
-  return row;
+  return rows[0] ?? emptyRow(account);
 }
 
 function deadlineDate(value: Row["deadline"]): Date | null {
@@ -82,31 +92,30 @@ function deadlineDate(value: Row["deadline"]): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-async function clearToOpen(notice: string) {
+async function clearToOpen(account: string, notice: string) {
   const db = await sql();
   await db`
-    update hasp_clasp set
+    update hasp_agent set
       phase = 'open',
       deposit_address = null,
       amount_in = null,
       amount_out = null,
       amount_out_usd = null,
-      account_id = null,
       deadline = null,
       notice = ${notice},
       updated_at = now()
-    where id = 1 and phase = 'awaiting'
+    where account_id = ${account} and phase = 'awaiting'
   `;
 }
 
-async function markSettled() {
+async function markSettled(account: string) {
   const db = await sql();
   await db`
-    update hasp_clasp set
+    update hasp_agent set
       phase = 'settled',
-      notice = 'Settled. The clasp is shut.',
+      notice = 'Settled. This agent’s clasp is shut.',
       updated_at = now()
-    where id = 1 and phase = 'awaiting'
+    where account_id = ${account} and phase = 'awaiting'
   `;
 }
 
@@ -119,11 +128,11 @@ async function fetchStatus(depositAddress: string): Promise<string | null> {
   return typeof body.status === "string" ? body.status : null;
 }
 
-async function sync(): Promise<ClaspView> {
-  const row = await load();
+async function sync(account: string): Promise<ClaspView> {
+  const row = await load(account);
   if (row.phase === "awaiting" && !row.deposit_address) {
-    await clearToOpen("Deposit failed. Nothing was deposited.");
-    return viewOf(await load());
+    await clearToOpen(account, "Deposit failed. Nothing was deposited.");
+    return viewOf(await load(account));
   }
   if (row.phase !== "awaiting" || !row.deposit_address) return viewOf(row);
 
@@ -135,15 +144,13 @@ async function sync(): Promise<ClaspView> {
   }
 
   if (chainStatus === "SUCCESS") {
-    await markSettled();
-    const next = await load();
-    return viewOf(next, chainStatus);
+    await markSettled(account);
+    return viewOf(await load(account), chainStatus);
   }
 
   if (chainStatus === "FAILED" || chainStatus === "REFUNDED") {
-    await clearToOpen("Deposit failed. Nothing was kept.");
-    const next = await load();
-    return viewOf(next, chainStatus);
+    await clearToOpen(account, "Deposit failed. Nothing was kept.");
+    return viewOf(await load(account), chainStatus);
   }
 
   const deadline = deadlineDate(row.deadline);
@@ -153,9 +160,8 @@ async function sync(): Promise<ClaspView> {
     chainStatus === "PENDING_DEPOSIT" ||
     chainStatus === "INCOMPLETE_DEPOSIT";
   if (expired && stillWaiting) {
-    await clearToOpen("The deposit window closed. Nothing was deposited.");
-    const next = await load();
-    return viewOf(next, chainStatus);
+    await clearToOpen(account, "The deposit window closed. Nothing was deposited.");
+    return viewOf(await load(account), chainStatus);
   }
 
   return viewOf(row, chainStatus);
@@ -198,18 +204,39 @@ function readInput(input: unknown): { amount: string; account: string } {
   };
 }
 
-export const readClasp = createServerFn({ method: "GET" }).handler(async () => {
-  return sync();
-});
+function readAccount(input: unknown): { account: string } {
+  if (!input || typeof input !== "object") return { account: "" };
+  const raw = input as { account?: unknown };
+  return {
+    account: typeof raw.account === "string" ? raw.account.trim().toLowerCase() : "",
+  };
+}
+
+export const readClasp = createServerFn({ method: "POST" })
+  .validator(readAccount)
+  .handler(async ({ data }) => {
+    if (!validAccount(data.account)) return viewOf(emptyRow(data.account));
+    return sync(data.account);
+  });
 
 export const checkRule = createServerFn({ method: "POST" })
   .validator(readInput)
   .handler(async ({ data }) => {
-    const current = await sync();
+    if (!validAccount(data.account)) {
+      const clasp = viewOf(emptyRow(data.account));
+      return {
+        outcome: "dropped" as const,
+        reason: "That is not a NEAR account. Nothing was deposited.",
+        quotedOut: null,
+        quotedUsd: null,
+        clasp,
+      };
+    }
+    const current = await sync(data.account);
     if (current.phase === "settled") {
       return {
         outcome: "dropped" as const,
-        reason: "Already used. The clasp is shut.",
+        reason: "This agent already used its clasp.",
         quotedOut: null,
         quotedUsd: null,
         clasp: current,
@@ -218,16 +245,7 @@ export const checkRule = createServerFn({ method: "POST" })
     if (current.phase === "awaiting") {
       return {
         outcome: "dropped" as const,
-        reason: "A deposit is already open. Nothing else is quoted.",
-        quotedOut: null,
-        quotedUsd: null,
-        clasp: current,
-      };
-    }
-    if (!validAccount(data.account)) {
-      return {
-        outcome: "dropped" as const,
-        reason: "That is not a NEAR account. Nothing was deposited.",
+        reason: "This agent already has a deposit open.",
         quotedOut: null,
         quotedUsd: null,
         clasp: current,
@@ -252,11 +270,7 @@ export const checkRule = createServerFn({ method: "POST" })
       quotedUsd = quote.quote?.amountOutUsd ?? null;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Quote failed.";
-      return {
-        outcome: "failed" as const,
-        message,
-        clasp: current,
-      };
+      return { outcome: "failed" as const, message, clasp: current };
     }
 
     if (!fitsAmount(yocto)) {
@@ -287,21 +301,21 @@ function quoteAmountIn(amount: string): string {
 export const openDeposit = createServerFn({ method: "POST" })
   .validator(readInput)
   .handler(async ({ data }) => {
-    const current = await sync();
+    if (!validAccount(data.account)) {
+      return {
+        outcome: "dropped" as const,
+        reason: "That is not a NEAR account. Nothing was deposited.",
+        clasp: viewOf(emptyRow(data.account)),
+      };
+    }
+    const current = await sync(data.account);
     if (current.phase !== "open") {
       return {
         outcome: "dropped" as const,
         reason:
           current.phase === "settled"
-            ? "Already used. The clasp is shut."
-            : "A deposit is already open.",
-        clasp: current,
-      };
-    }
-    if (!validAccount(data.account)) {
-      return {
-        outcome: "dropped" as const,
-        reason: "That is not a NEAR account. Nothing was deposited.",
+            ? "This agent already used its clasp."
+            : "This agent already has a deposit open.",
         clasp: current,
       };
     }
@@ -315,16 +329,19 @@ export const openDeposit = createServerFn({ method: "POST" })
     }
 
     const db = await sql();
-    const locked = await db<{ id: number }>`
-      update hasp_clasp set phase = 'awaiting', updated_at = now(), notice = null
-      where id = 1 and phase = 'open'
-      returning id
+    const locked = await db<{ account_id: string }>`
+      insert into hasp_agent (account_id, phase)
+      values (${data.account}, 'awaiting')
+      on conflict (account_id) do update
+        set phase = 'awaiting', notice = null, updated_at = now()
+        where hasp_agent.phase = 'open'
+      returning account_id
     `;
     if (locked.length === 0) {
-      const clasp = await sync();
+      const clasp = await sync(data.account);
       return {
         outcome: "dropped" as const,
-        reason: "The clasp was taken. Nothing new was deposited.",
+        reason: "This agent’s clasp was taken. Nothing new was deposited.",
         clasp,
       };
     }
@@ -337,41 +354,43 @@ export const openDeposit = createServerFn({ method: "POST" })
       const amountUsd = quote.quote?.amountOutUsd ?? "";
       const deadline = quote.quote?.deadline ?? new Date(Date.now() + 10 * 60 * 1000).toISOString();
       if (!address) {
-        await clearToOpen("Deposit failed. No address was issued.");
-        const clasp = await load();
+        await clearToOpen(data.account, "Deposit failed. No address was issued.");
         return {
           outcome: "failed" as const,
           message: "Deposit failed. No address was issued. Nothing was deposited.",
-          clasp: viewOf(clasp),
+          clasp: viewOf(await load(data.account)),
         };
       }
       await db`
-        update hasp_clasp set
+        update hasp_agent set
           phase = 'awaiting',
           deposit_address = ${address},
           amount_in = ${amountIn},
           amount_out = ${amountOut},
           amount_out_usd = ${amountUsd},
-          account_id = ${data.account},
           deadline = ${deadline},
           notice = 'Nothing is deposited until this NEAR arrives.',
           updated_at = now()
-        where id = 1
+        where account_id = ${data.account}
       `;
-      const clasp = await load();
-      return { outcome: "opened" as const, clasp: viewOf(clasp, "PENDING_DEPOSIT") };
+      return {
+        outcome: "opened" as const,
+        clasp: viewOf(await load(data.account), "PENDING_DEPOSIT"),
+      };
     } catch (error) {
-      await clearToOpen("Deposit failed.");
-      const clasp = await load();
+      await clearToOpen(data.account, "Deposit failed.");
       const message = error instanceof Error ? error.message : "Deposit failed.";
       return {
         outcome: "failed" as const,
         message: `Deposit failed. ${message} Nothing was deposited.`,
-        clasp: viewOf(clasp),
+        clasp: viewOf(await load(data.account)),
       };
     }
   });
 
-export const refreshClasp = createServerFn({ method: "POST" }).handler(async () => {
-  return sync();
-});
+export const refreshClasp = createServerFn({ method: "POST" })
+  .validator(readAccount)
+  .handler(async ({ data }) => {
+    if (!validAccount(data.account)) return viewOf(emptyRow(data.account));
+    return sync(data.account);
+  });

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Mark } from "@/components/mark";
-import { checkRule, openDeposit, readClasp, refreshClasp, type ClaspView } from "@/lib/hasp/fn";
+import { checkRule, openDeposit, refreshClasp, type ClaspView } from "@/lib/hasp/fn";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -13,22 +13,6 @@ function Home() {
   const [line, setLine] = useState<string | null>(null);
   const [fit, setFit] = useState<{ out: string; usd: string } | null>(null);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    let live = true;
-    readClasp()
-      .then((view) => {
-        if (!live) return;
-        setClasp(view);
-        if (view.notice) setLine(view.notice);
-      })
-      .catch(() => {
-        if (live) setLine("The clasp could not be read.");
-      });
-    return () => {
-      live = false;
-    };
-  }, []);
 
   const phase = clasp?.phase ?? "open";
 
@@ -79,7 +63,7 @@ function Home() {
   async function onRefresh() {
     setBusy(true);
     try {
-      const view = await refreshClasp();
+      const view = await refreshClasp({ data: { account } });
       setClasp(view);
       setLine(view.notice);
     } catch {
@@ -113,7 +97,7 @@ function Home() {
           <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-line pt-6">
             <Fact k="At most" v="0.02 NEAR" />
             <Fact k="Into" v="USDC" />
-            <Fact k="Times" v="Once" />
+            <Fact k="Times" v="Once each" />
           </dl>
         </header>
 
@@ -132,7 +116,7 @@ function Home() {
               />
             ) : (
               <form onSubmit={onCheck} className="flex flex-col gap-5">
-                <Field label="Account" hint="Refunds and USDC land here.">
+                <Field label="Agent" hint="One account. One clasp.">
                   <input
                     className="h-12 w-full rounded-xl border border-line bg-card px-4 text-ink outline-none focus:border-ink"
                     value={account}
@@ -142,6 +126,8 @@ function Home() {
                     onChange={(event) => {
                       setAccount(event.target.value);
                       setFit(null);
+                      setClasp(null);
+                      setLine(null);
                     }}
                   />
                 </Field>
@@ -226,7 +212,7 @@ function Field({
 function Settled({ line, out }: { line: string | null; out: string | null | undefined }) {
   return (
     <div>
-      <p className="font-display text-4xl text-balance">The clasp is shut.</p>
+      <p className="font-display text-4xl text-balance">This clasp is shut.</p>
       <p className="mt-4 text-pretty text-sm leading-relaxed text-mute">
         {line ?? "Settled. Nothing further is deposited."}
       </p>
