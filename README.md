@@ -93,6 +93,10 @@ scripts/hasp-agent.mjs        dry quote, deposits nothing
 migrations/0003_hasp_agent.sql  one row per account
 public/favicon.png            the browser icon
 docs/logo.png                 the mark used above
+LICENSE                       MIT
+SECURITY.md                   how to report a problem
+CODE_OF_CONDUCT.md            how to take part
+CONTRIBUTING.md               what a patch may not change
 docs/home.png                 the page shown above
 ```
 
