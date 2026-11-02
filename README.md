@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/favicon.svg" width="72" height="72" alt="Hasp">
+  <img src="docs/logo.png" width="111" height="70" alt="Hasp">
 </p>
 
 <h1 align="center">Hasp</h1>
@@ -91,7 +91,8 @@ src/routes/index.tsx          the page
 src/components/mark.tsx       the mark
 scripts/hasp-agent.mjs        dry quote, deposits nothing
 migrations/0003_hasp_agent.sql  one row per account
-public/favicon.svg            the mark used above
+public/favicon.png            the browser icon
+docs/logo.png                 the mark used above
 docs/home.png                 the page shown above
 ```
 
