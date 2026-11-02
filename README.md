@@ -6,6 +6,8 @@ At most 0.02 NEAR. USDC only. Once per agent account.
 
 Site: https://theclasp.vercel.app
 
+![The clasp, before a quote is checked.](docs/home.png)
+
 A quote that breaks the rule is dropped. Nothing is deposited. A quote that fits can open one NEAR Intents deposit. Hasp holds no keys and cannot send the NEAR. Until that NEAR arrives, nothing is deposited. If the deposit fails, the page says so. Settled is shown only when NEAR Intents reports `SUCCESS`.
 
 Track: Agent Economy (`agents`).
