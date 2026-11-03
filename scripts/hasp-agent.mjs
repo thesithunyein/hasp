@@ -33,25 +33,41 @@ if (atoms === null) {
   process.exit(2);
 }
 
+if (atoms > MAX) {
+  console.log("DROPPED");
+  console.log("Above 0.02 NEAR. Dropped. Nothing was deposited.");
+  process.exit(2);
+}
+
 const deadline = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-const res = await fetch("https://1click.chaindefuser.com/v0/quote", {
-  method: "POST",
-  headers: { "content-type": "application/json", accept: "application/json" },
-  body: JSON.stringify({
-    dry: true,
-    swapType: "EXACT_INPUT",
-    slippageTolerance: 100,
-    originAsset: NEAR,
-    depositType: "ORIGIN_CHAIN",
-    destinationAsset: USDC,
-    amount: atoms.toString(),
-    recipient: account,
-    recipientType: "INTENTS",
-    refundTo: account,
-    refundType: "ORIGIN_CHAIN",
-    deadline,
-  }),
-});
+let res;
+try {
+  res = await fetch("https://1click.chaindefuser.com/v0/quote", {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    signal: AbortSignal.timeout(20_000),
+    body: JSON.stringify({
+      dry: true,
+      swapType: "EXACT_INPUT",
+      slippageTolerance: 100,
+      originAsset: NEAR,
+      depositType: "ORIGIN_CHAIN",
+      destinationAsset: USDC,
+      amount: atoms.toString(),
+      recipient: account,
+      recipientType: "INTENTS",
+      refundTo: account,
+      refundType: "ORIGIN_CHAIN",
+      deadline,
+    }),
+  });
+} catch (error) {
+  console.log("FAILED");
+  console.log(
+    `No quote (${error?.name ?? "network error"}). Nothing was deposited.`,
+  );
+  process.exit(1);
+}
 
 if (!res.ok) {
   console.log("FAILED");
@@ -62,12 +78,6 @@ if (!res.ok) {
 const body = await res.json();
 const out = body.quote?.amountOutFormatted ?? "";
 const usd = body.quote?.amountOutUsd ?? "";
-
-if (atoms > MAX) {
-  console.log("DROPPED");
-  console.log(`Above 0.02 NEAR. Quote was ${out} USDC. Nothing was deposited.`);
-  process.exit(2);
-}
 
 console.log("FITS");
 console.log(`${amountArg.trim()} NEAR -> ${out} USDC${usd ? ` (${usd})` : ""}.`);

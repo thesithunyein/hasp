@@ -55,13 +55,13 @@ NEAR transactions: [9kPEnrpySh2X7qzoYAepsSbqofMENPYTWZUh28ivqCp](https://nearblo
 
 ## Do this
 
-From this repository, with Node. These commands ask for a dry quote. They deposit nothing.
+From this repository, with Node. The 0.03 command is refused before any quote is asked for. The 0.02 command asks for a dry quote. Neither deposits anything.
 
 ```sh
 node scripts/hasp-agent.mjs 0.03 name.near
 ```
 
-See `DROPPED`. Nothing is deposited.
+See `DROPPED`. No quote was asked for. Nothing is deposited.
 
 ```sh
 node scripts/hasp-agent.mjs 0.02 name.near
@@ -71,7 +71,7 @@ See `FITS`, then a USDC amount. Nothing is deposited.
 
 On https://theclasp.vercel.app:
 
-1. Enter an agent account that has not settled. Amount `0.03`. Check. The quote is dropped.
+1. Enter an agent account that has not settled. Amount `0.03`. Check. It is refused before any quote is asked for.
 2. Amount `0.02`. Check. The quote fits. Nothing is deposited yet.
 3. Open deposit. An address appears, or the page says the deposit failed. Send the 0.02 NEAR yourself.
 4. Read status. The clasp stays open until Intents says `SUCCESS`. A failure reopens it and says so.
