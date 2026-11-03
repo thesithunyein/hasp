@@ -267,6 +267,16 @@ export const checkRule = createServerFn({ method: "POST" })
       };
     }
 
+    if (!fitsAmount(yocto)) {
+      return {
+        outcome: "dropped" as const,
+        reason: "Above 0.02 NEAR. Dropped. Nothing was deposited.",
+        quotedOut: null,
+        quotedUsd: null,
+        clasp: current,
+      };
+    }
+
     let quotedOut: string | null = null;
     let quotedUsd: string | null = null;
     try {
@@ -276,16 +286,6 @@ export const checkRule = createServerFn({ method: "POST" })
     } catch (error) {
       const message = error instanceof Error ? error.message : "Quote failed.";
       return { outcome: "failed" as const, message, clasp: current };
-    }
-
-    if (!fitsAmount(yocto)) {
-      return {
-        outcome: "dropped" as const,
-        reason: "Above 0.02 NEAR. Quote dropped. Nothing was deposited.",
-        quotedOut,
-        quotedUsd,
-        clasp: current,
-      };
     }
 
     return {
