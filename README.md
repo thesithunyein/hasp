@@ -78,9 +78,11 @@ On https://theclasp.vercel.app:
 
 `sithunyein.near` is already shut. A second account can still try. The rule is per account.
 
+The demo shows the cap drop and the settled swap. The amount parsing, the account check, and the cap are pinned by [`src/lib/hasp/rule.test.ts`](https://github.com/thesithunyein/hasp/blob/main/src/lib/hasp/rule.test.ts), and the drop-before-quote order is pinned by [`scripts/hasp-agent.test.mjs`](https://github.com/thesithunyein/hasp/blob/main/scripts/hasp-agent.test.mjs).
+
 ## NEAR
 
-The quote is a mainnet NEAR Intents 1Click quote. Origin is wrapped NEAR. Destination is USDC, paid into Intents for that account. There is no testnet for Intents. The agent script uses a dry quote. The site asks for a deposit address only after the rule fits.
+The quote is a mainnet NEAR Intents 1Click quote. Origin is wrapped NEAR. Destination is USDC, paid into Intents for that account. Intents settles the swap across chains, so the agent never needs a USDC account or gas on another chain; it holds no key at all. There is no testnet for Intents. The agent script uses a dry quote. The site asks for a deposit address only after the rule fits.
 
 ## Project
 
