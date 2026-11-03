@@ -28,8 +28,7 @@ function Home() {
         setFit({ out: result.amountOut, usd: result.amountOutUsd });
         setLine("Inside the rule. Nothing is deposited yet.");
       } else if (result.outcome === "dropped") {
-        const quoted = result.quotedOut ? ` Quote was ${result.quotedOut} USDC.` : "";
-        setLine(`${result.reason}${quoted}`);
+        setLine(result.reason);
       } else {
         setLine(result.message);
       }
