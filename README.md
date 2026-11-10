@@ -106,7 +106,11 @@ The site is the app in `src/`. The files above are the clasp.
 
 ## The other project
 
-This is the second project. The first is [Kyrona](https://github.com/thesithunyein/kyrona), a spending desk with its own contract and its own key. Hasp does not use that contract, that key, or that desk. The two do not share code.
+This is the second project. The first is [Kyrona](https://github.com/thesithunyein/kyrona), a spending desk with its own contract and its own key. Hasp does not use that contract, that key, or that desk. The two share no product code. Both repositories started from the same Grok App Builder shell, so those generated files are identical in each; the clasp (`src/lib/hasp/`, `src/routes/index.tsx`, `scripts/hasp-agent.mjs`, `migrations/0003_hasp_agent.sql`) is Hasp's alone.
+
+## Built with
+
+Written for this hackathon, from 1 November 2026. The app shell (TanStack Start, React, Vite, the auth and preview wiring under `src/lib/auth`, `src/lib/app-data`, `server/` and most of `scripts/`) came from a Grok App Builder export. The clasp itself is new: the files listed under Project. Parts of the code were written with AI assistance. Settlement uses the NEAR Intents 1Click API.
 
 ## What this is not
 
