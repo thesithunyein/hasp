@@ -112,6 +112,12 @@ This is the second project. The first is [Kyrona](https://github.com/thesithunye
 
 Written for this hackathon, from 1 November 2026. The app shell (TanStack Start, React, Vite, the auth and preview wiring under `src/lib/auth`, `src/lib/app-data`, `server/` and most of `scripts/`) came from a Grok App Builder export. The clasp itself is new: the files listed under Project. Parts of the code were written with AI assistance. Settlement uses the NEAR Intents 1Click API.
 
+## What this does not enforce
+
+- The rule is checked by this site and stored in its database. An agent that calls the NEAR Intents 1Click API directly, without Hasp, is not stopped. Hasp shows what a rule in front of a swap looks like; it is not an on-chain lock.
+- There is no sign-in. Anyone can enter any account and open that account's one clasp, which then counts as used.
+- Send the deposit from the agent account itself. The quote sets that account as the refund address, so a failed swap refunds it, not whoever sent the NEAR.
+
 ## What this is not
 
 - Not a wallet, and not a key.

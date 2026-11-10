@@ -244,6 +244,11 @@ function Awaiting({
       <p className="mt-4 text-pretty text-sm leading-relaxed text-ink">
         {line ?? "Nothing is deposited until this NEAR arrives."}
       </p>
+      {clasp.accountId ? (
+        <p className="mt-2 text-pretty text-sm leading-relaxed text-mute">
+          Send it from {clasp.accountId}. A refund goes back to that account, not to whoever sent it.
+        </p>
+      ) : null}
       <p className="mt-6 font-display text-3xl tabular-nums">
         {clasp.amountIn} <span className="text-mute">NEAR</span>
       </p>
