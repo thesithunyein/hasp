@@ -17,7 +17,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test scripts/checkout.test.mjs
+      - run: node --test scripts/checkout.test.mjs scripts/hasp-agent.test.mjs
+      - name: The agent's dry run against live NEAR Intents
+        run: |
+          if node scripts/hasp-agent.mjs buy --to sithunyein.near --usd 1 --item "A CI dry run" > agent.out 2>&1; then
+            echo "::notice title=Agent dry run (mainnet quote, nothing sent)::$(cat agent.out | tr '\n' '|')"
+          else
+            echo "::warning title=Agent dry run::$(cat agent.out | tr '\n' '|')"
+          fi
+          node scripts/hasp-agent.mjs buy --to stranger.near --usd 1 > stop.out 2>&1; code=$?
+          echo "::notice title=Agent stopped by its rule (exit $code)::$(cat stop.out | tr '\n' '|')"
+          test "$code" = 2
 
   reviewer:
     name: What a reviewer runs after cloning

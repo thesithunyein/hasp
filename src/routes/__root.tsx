@@ -11,7 +11,7 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: APP_NAME },
-      { name: "description", content: "NEAR moves only through this clasp. 0.02 NEAR, USDC only, once." },
+      { name: "description", content: "Checkout for almost any coin. One script tag; the buyer pays from any chain and exact USDC lands in your NEAR account through NEAR Intents." },
       { name: "theme-color", content: "#f3f0e8" },
     ],
     links: [

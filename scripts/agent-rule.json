@@ -1,0 +1,5 @@
+{
+  "merchants": ["sithunyein.near"],
+  "maxPerPurchaseUsd": "2",
+  "maxPerDayUsd": "5"
+}

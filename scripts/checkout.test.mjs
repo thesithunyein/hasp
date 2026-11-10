@@ -87,3 +87,21 @@ test("every 1Click status reads as a plain sentence, and only three are final", 
     [false, false, true, true, true],
   );
 });
+
+test("the amount to send is rounded up, never below the quote", () => {
+  assert.equal(core.sendAmount("286646832515135381220734", 24), "0.286647");
+  assert.equal(core.sendAmount("286646000000000000000000", 24), "0.286646");
+  assert.equal(core.sendAmount("1014689", 6), "1.014689");
+  assert.equal(core.sendAmount("12288631", 9), "0.012289");
+  assert.equal(core.sendAmount("123456", 8), "0.00123456");
+  assert.equal(core.sendAmount("487000000000001", 18), "0.000488");
+  assert.equal(core.sendAmount("abc", 6), null);
+});
+
+test("time left reads in minutes, hours or days", () => {
+  const now = Date.UTC(2026, 10, 11);
+  assert.equal(core.timeLeft(new Date(now + 45 * 60000).toISOString(), now), "about 45 minutes");
+  assert.equal(core.timeLeft(new Date(now + 3 * 3600000).toISOString(), now), "about 3 hours");
+  assert.equal(core.timeLeft(new Date(now + 73 * 3600000).toISOString(), now), "about 3 days");
+  assert.equal(core.timeLeft(new Date(now - 1000).toISOString(), now), null);
+});

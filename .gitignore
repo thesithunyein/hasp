@@ -10,3 +10,4 @@ artifacts/imagine_images
 artifacts/imagine_videos
 .env
 .env.*
+.hasp-agent-log.json

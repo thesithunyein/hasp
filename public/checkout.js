@@ -127,6 +127,33 @@
     FAILED: "Not paid. NEAR Intents could not complete it.",
   };
 
+  /**
+   * The amount to send, rounded up so it never falls below the quote. Base units in, text out.
+   * Tokens with more than 8 decimals keep 6; a fraction of a cent extra comes back as a refund.
+   */
+  function sendAmount(baseUnits, decimals) {
+    var raw = String(baseUnits || "");
+    if (!/^\d+$/.test(raw)) return null;
+    var dec = Number(decimals) || 0;
+    var keep = dec <= 8 ? dec : 6;
+    var value = BigInt(raw);
+    var step = BigInt(10) ** BigInt(dec - keep);
+    var rounded = ((value + step - BigInt(1)) / step) * step;
+    var whole = (rounded / BigInt(10) ** BigInt(dec)).toString();
+    var frac = (rounded % BigInt(10) ** BigInt(dec)).toString().padStart(dec, "0").slice(0, keep).replace(/0+$/, "");
+    return frac ? whole + "." + frac : whole;
+  }
+
+  /** "about 45 minutes" or "about 2 hours" until a time, for people. */
+  function timeLeft(iso, now) {
+    var ms = Date.parse(iso) - (now || Date.now());
+    if (!(ms > 0)) return null;
+    var minutes = Math.round(ms / 60000);
+    if (minutes < 90) return "about " + Math.max(1, minutes) + " minutes";
+    var hours = Math.round(minutes / 60);
+    return hours < 48 ? "about " + hours + " hours" : "about " + Math.round(hours / 24) + " days";
+  }
+
   function statusText(status) {
     return STATUS[status] || "Checking the payment.";
   }
@@ -138,7 +165,7 @@
   var core = {
     API: API, USDC_NEAR: USDC_NEAR, validNearAccount: validNearAccount, usdToBase: usdToBase,
     chainName: chainName, coinName: coinName, refundProblem: refundProblem, payable: payable,
-    quoteRequest: quoteRequest, statusText: statusText, finalStatus: finalStatus,
+    quoteRequest: quoteRequest, statusText: statusText, finalStatus: finalStatus, sendAmount: sendAmount, timeLeft: timeLeft,
   };
 
   if (typeof document === "undefined") {
@@ -358,7 +385,8 @@
           var q = res.quote;
           var payment = {
             depositAddress: q.depositAddress, memo: q.depositMemo || null, deadline: q.deadline,
-            amountIn: q.amountInFormatted, minIn: q.minAmountIn, amountInUsd: q.amountInUsd,
+            cold: q.timeWhenInactive || q.deadline,
+            amountIn: sendAmount(q.amountIn, token.decimals) || q.amountInFormatted, minIn: q.minAmountIn, amountInUsd: q.amountInUsd,
             symbol: coinName(token), chain: chain, out: q.amountOutFormatted, refundTo: refundTo,
           };
           save(self.key, payment);
@@ -385,12 +413,12 @@
     } } }), txNote]);
     sent.addEventListener("click", function () { txWrap.hidden = false; sent.hidden = true; });
     var restart = el("button", { class: "link", type: "button", text: "Start over with another coin", on: { click: function () { clearTimeout(self.timer); save(self.key, null); self.showCoins(); } } });
-    var minutes = Math.max(0, Math.round((Date.parse(p.deadline) - Date.now()) / 60000));
+    var left = timeLeft(p.cold || p.deadline);
     this.frame("Send exactly this", this.heading(), [
       field("Amount", p.amountIn + " " + p.symbol + " on " + chainName(p.chain)),
       field("To this one-time address", p.depositAddress),
       p.memo ? field("Memo (required)", p.memo) : null,
-      el("p", { class: "mute", text: "Send from any wallet within " + minutes + " minutes. A little more is fine: the extra goes back to " + p.refundTo + ". " + this.cfg.to + " receives " + (p.out || this.cfg.usd) + " USDC." }),
+      el("p", { class: "mute", text: "Send it from any wallet" + (left ? ", within " + left : "") + ". A little more is fine: the extra goes back to " + p.refundTo + ". " + this.cfg.to + " receives " + (p.out || this.cfg.usd) + " USDC." }),
       state,
       el("p", null, [sent]), txWrap,
       el("p", null, [restart]),
