@@ -5,122 +5,170 @@
 <h1 align="center">Hasp</h1>
 
 <p align="center">
-  An agent may swap NEAR only inside a rule.
+  Checkout for almost any coin. Exact USDC arrives on NEAR.
 </p>
 
 <p align="center">
-  <a href="https://theclasp.vercel.app"><img src="https://img.shields.io/website?url=https%3A%2F%2Ftheclasp.vercel.app&label=site&style=flat-square" alt="Site"></a>
-  <img src="https://img.shields.io/badge/at%20most-0.02%20NEAR-1a1714?style=flat-square" alt="At most 0.02 NEAR">
-  <img src="https://img.shields.io/badge/into-USDC-9a5b32?style=flat-square" alt="Into USDC">
-  <img src="https://img.shields.io/badge/times-once-f3f0e8?style=flat-square" alt="Once">
+  <a href="https://thehasp.vercel.app"><img src="https://img.shields.io/badge/site-thehasp.vercel.app-1a1714?style=flat-square" alt="Site"></a>
+  <a href="https://github.com/thesithunyein/hasp/actions/workflows/ci.yml"><img src="https://github.com/thesithunyein/hasp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/settles%20on-NEAR%20Intents-9a5b32?style=flat-square" alt="NEAR Intents">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-f3f0e8?style=flat-square" alt="MIT license"></a>
 </p>
 
-An agent that can pay can also spend too much, pay the wrong coin, or pay again. Hasp is the lock in front of that payment. The agent may ask for a swap. The swap is allowed only when it is at most 0.02 NEAR, only into USDC, and only once for that account. Anything else is dropped, and nothing is deposited.
+A shop that wants crypto has to pick which chains and coins to accept, and its buyers rarely hold the right one. Hasp is one script tag. The buyer pays with whatever they hold, on NEAR, Ethereum, Base, Arbitrum, Solana, Bitcoin or dozens of other chains, and the shop receives the exact USDC it asked for in its NEAR account. NEAR Intents does the conversion and the settlement. Hasp has no server, no sign-up and no keys, and never holds the funds.
 
-Site: https://theclasp.vercel.app
+```html
+<script src="https://thehasp.vercel.app/checkout.js"
+        data-to="yourname.near" data-usd="5" data-item="A coffee"></script>
+```
 
-![The clasp, before a quote is checked.](docs/home.png)
+It is the "universal checkout widget" from [Illia Polosukhin's list of things to build on NEAR](https://crypto.news/near-co-founder-pitches-ai-pets-private-trading/) (3 October 2026): customers pay through NEAR Intents with whatever wallet and chain holds their assets.
 
-Track: Agent Economy (`agents`).
+Tracks: Agent Economy (`agents`) and Real-World Money (`realworld`).
 
-## What it does
+## Try it
 
-Hasp holds no keys and cannot send NEAR. A quote that fits can open one NEAR Intents deposit address. Until that NEAR arrives, nothing is deposited. If the deposit fails, the page says so. The clasp is marked settled only when NEAR Intents reports `SUCCESS`.
+No wallet is needed for steps 1 to 3. Nothing moves until a buyer sends coins to the address the quote gives.
+
+| Do | See |
+|---|---|
+| 1. Open [thehasp.vercel.app](https://thehasp.vercel.app), choose **Tip $1**, pick a coin, give a refund address on that coin's chain | A one-time deposit address from NEAR Intents and the exact amount to send, for example `0.286647 NEAR`. The status line reads "Waiting for your payment." |
+| 2. Open [the demo shop](https://thehasp.vercel.app/shop.html) | The same button on a plain HTML page with no framework: two `<script>` tags, two prices |
+| 3. In **Make a button** on the site, enter a NEAR account and a price | The tag to paste, and a live preview of the button it makes |
+| 4. `node scripts/hasp-agent.mjs buy --to sithunyein.near --usd 1 --item "A coffee"` | `rule` allows it, then a live mainnet `quote`, then `dry run  nothing sent` |
+| 5. `node scripts/hasp-agent.mjs buy --to stranger.near --usd 1` | `STOPPED: stranger.near is not on the agent's list of merchants`, exit code 2, no quote asked for |
+| 6. `npm ci && npm test` | 17 tests pass: prices, accounts, refund addresses, the coin list, the exact quote, the agent's rule |
+
+Steps 4 and 5 also run on every push in [CI](https://github.com/thesithunyein/hasp/actions/workflows/ci.yml): open a run and read the notices "Agent dry run (mainnet quote, nothing sent)" and "Agent stopped by its rule (exit 2)".
+
+## Add it to a page
+
+```html
+<!-- One button where the tag is -->
+<script src="https://thehasp.vercel.app/checkout.js"
+        data-to="yourname.near" data-usd="5" data-item="A coffee" data-label="Buy a coffee"></script>
+
+<!-- Or several, anywhere, with one script tag -->
+<div data-hasp-to="yourname.near" data-hasp-usd="3" data-hasp-item="Lunch"></div>
+<script src="https://thehasp.vercel.app/checkout.js"></script>
+```
+
+| Attribute | Meaning |
+|---|---|
+| `data-to` | Your NEAR account. The USDC is paid here. |
+| `data-usd` | The price in dollars, like `5` or `4.50`, up to 10,000. You receive exactly this much USDC. |
+| `data-item` | Optional. What the buyer is paying for. |
+| `data-label` | Optional. The button text. Default: `Pay $5`. |
+
+From JavaScript: `Hasp.open({ to: "yourname.near", usd: "5", item: "A coffee" })`. When NEAR Intents reports `SUCCESS`, the button fires a `hasp:paid` event with `{ to, usd, item, depositAddress, amountOut }`. The event comes from the buyer's browser, so before you ship anything, confirm the payment yourself: `GET https://1click.chaindefuser.com/v0/status?depositAddress=...` must say `SUCCESS`, or check your NEAR account.
+
+The button and its window draw inside a shadow root, so a page's CSS cannot break them and they cannot change the page.
+
+## How a payment moves
 
 ```mermaid
-flowchart TD
-  ask[The agent asks for a quote] --> rule{At most 0.02 NEAR, USDC only, and this account is still open}
-  rule -->|No| drop[The quote is dropped. Nothing is deposited.]
-  rule -->|Yes| addr[NEAR Intents returns one deposit address]
-  addr --> send[A person sends 0.02 NEAR. Hasp does not send it.]
-  send --> status{Intents status}
-  status -->|SUCCESS| shut[The clasp shuts. USDC sits in Intents for that account.]
-  status -->|FAILED or REFUNDED| back[The page says the deposit failed. Nothing was kept.]
+sequenceDiagram
+  actor Buyer
+  participant Page as Shop page + checkout.js
+  participant Intents as NEAR Intents 1Click
+  participant Shop as Shop's NEAR account
+
+  Buyer->>Page: Pay $5
+  Page->>Intents: GET /v0/tokens
+  Buyer->>Page: SOL on Solana, refund to my Solana address
+  Page->>Intents: POST /v0/quote: EXACT_OUTPUT 5 USDC to shop.near, refund to the buyer
+  Intents-->>Page: one-time Solana deposit address, exact SOL amount
+  Buyer->>Intents: sends SOL from any wallet
+  loop every 5 seconds
+    Page->>Intents: GET /v0/status
+  end
+  Intents->>Shop: 5 USDC on NEAR
+  Intents-->>Page: SUCCESS
+  Page-->>Buyer: Paid
 ```
 
-## What happened
-
-Account `sithunyein.near`.
-
-One deposit of 0.02 NEAR was refunded. NEAR Intents reported `REFUNDED` with reason `NO_LIQUIDITY`. The 0.02 NEAR went back to that account. The page said the deposit failed and nothing was kept.
-
-A second deposit settled. NEAR Intents reported `SUCCESS`: 0.02 NEAR in, 0.082181 USDC out, nothing refunded. The USDC is in the Intents balance for `sithunyein.near`, not in the NEAR balance of a wallet. The page now says the clasp is shut and will not open again for that account.
-
-Deposit address: `aec93e908cfb10059e100ced9b324da6bc0bc4aa321fff98c39c0a4af7356a93`
-
-Status: https://1click.chaindefuser.com/v0/status?depositAddress=aec93e908cfb10059e100ced9b324da6bc0bc4aa321fff98c39c0a4af7356a93
-
-NEAR transactions: [9kPEnrpySh2X7qzoYAepsSbqofMENPYTWZUh28ivqCp](https://nearblocks.io/txns/9kPEnrpySh2X7qzoYAepsSbqofMENPYTWZUh28ivqCp), [xDrRSHsxmpQNB8JzmqddVTtwqKQRq2W61xLaC5dXJUL](https://nearblocks.io/txns/xDrRSHsxmpQNB8JzmqddVTtwqKQRq2W61xLaC5dXJUL)
-
-## Do this
-
-From this repository, with Node. The 0.03 command is refused before any quote is asked for. The 0.02 command asks for a dry quote. Neither deposits anything.
-
-```sh
-node scripts/hasp-agent.mjs 0.03 name.near
-```
-
-See `DROPPED`. No quote was asked for. Nothing is deposited.
-
-```sh
-node scripts/hasp-agent.mjs 0.02 name.near
-```
-
-See `FITS`, then a USDC amount. Nothing is deposited.
-
-On https://theclasp.vercel.app:
-
-1. Enter an agent account that has not settled. Amount `0.03`. Check. It is refused before any quote is asked for.
-2. Amount `0.02`. Check. The quote fits. Nothing is deposited yet.
-3. Open deposit. An address appears, or the page says the deposit failed. Send the 0.02 NEAR yourself.
-4. Read status. The clasp stays open until Intents says `SUCCESS`. A failure reopens it and says so.
-
-`sithunyein.near` is already shut. A second account can still try. The rule is per account.
-
-The demo shows the cap drop and the settled swap. The amount parsing, the account check, and the cap are pinned by [`src/lib/hasp/rule.test.ts`](https://github.com/thesithunyein/hasp/blob/main/src/lib/hasp/rule.test.ts), and the drop-before-quote order is pinned by [`scripts/hasp-agent.test.mjs`](https://github.com/thesithunyein/hasp/blob/main/scripts/hasp-agent.test.mjs).
+The page talks to the 1Click API directly from the buyer's browser. Hasp's own site only serves the script.
 
 ## NEAR
 
-The quote is a mainnet NEAR Intents 1Click quote. Origin is wrapped NEAR. Destination is USDC, paid into Intents for that account. Intents settles the swap across chains, so the agent never needs a USDC account or gas on another chain; it holds no key at all. There is no testnet for Intents. The agent script uses a dry quote. The site asks for a deposit address only after the rule fits.
+- **NEAR Intents, 1Click API.** Each payment is one `EXACT_OUTPUT` quote: the output is fixed at the shop's price in USDC, and Intents works out the input. `depositType: ORIGIN_CHAIN` gives an address on the buyer's own chain. `recipientType: DESTINATION_CHAIN` with destination `nep141:17208628…36133a1` (native USDC on NEAR) pays the shop's NEAR account, not an Intents balance. `refundType: ORIGIN_CHAIN` sends any refund to the buyer's address on their own chain.
+- **Any chain in, one account out.** On 11 November 2026, `GET /v0/tokens` listed 229 tokens on 39 chains. The coin list in the window comes from that call, so new coins appear without a release. BNB Chain and Tron have high minimums on Intents ($1,000 and $100), so they only appear for prices at least that large.
+- **NEAR accounts as the shop's address.** A shop is a NEAR account like `yourname.near`, not a hex address per chain.
 
-## Project
+## Proof on mainnet
 
+Live quotes on 11 November 2026 for exactly 1.00 USDC to `sithunyein.near` (dry, nothing sent):
+
+| Buyer pays with | Quote | Estimated time |
+|---|---|---|
+| NEAR | 0.2848 NEAR (≈ $1.017) | 22 s |
+| USDC on Base | 1.014689 USDC | 35 s |
+| SOL on Solana | 0.012288631 SOL | 22 s |
+
+An earlier swap through the same API settled on mainnet: 0.02 NEAR in, 0.082181 USDC out, status [`SUCCESS`](https://1click.chaindefuser.com/v0/status?depositAddress=aec93e908cfb10059e100ced9b324da6bc0bc4aa321fff98c39c0a4af7356a93), NEAR transactions [9kPEnrpy…](https://nearblocks.io/txns/9kPEnrpySh2X7qzoYAepsSbqofMENPYTWZUh28ivqCp) and [xDrRSHsx…](https://nearblocks.io/txns/xDrRSHsxmpQNB8JzmqddVTtwqKQRq2W61xLaC5dXJUL). A first attempt was refunded with `NO_LIQUIDITY`, and the 0.02 NEAR came back.
+
+## For AI agents
+
+`scripts/hasp-agent.mjs` lets an agent pay at any Hasp checkout. It asks for the same `EXACT_OUTPUT` quote a person's button asks for, pays the deposit address in NEAR from its own account, tells Intents the transaction hash, and waits for `SUCCESS`.
+
+Before it asks for anything, it checks its rule in [`scripts/agent-rule.json`](scripts/agent-rule.json): only merchants on its list, at most `$2` per purchase and `$5` a day (UTC), counting only purchases that settled. Outside the rule it stops with exit code 2 and asks for no quote. Each settled purchase goes into `.hasp-agent-log.json` (ignored by git).
+
+```sh
+node scripts/hasp-agent.mjs buy --to sithunyein.near --usd 1 --item "A coffee"           # dry run
+HASP_AGENT_ACCOUNT=agent.near HASP_AGENT_KEY='ed25519:...' \
+  node scripts/hasp-agent.mjs buy --to sithunyein.near --usd 1 --item "A coffee" --send   # pays
 ```
-src/lib/hasp/rule.ts          the rule: 0.02 NEAR, USDC, once
-src/lib/hasp/fn.ts            check, open a deposit, read status
-src/routes/index.tsx          the page
+
+The rule is the agent's own discipline, not a lock: a key that can send NEAR can also be used without this script. Give the agent an account that holds only what it may spend.
+
+## What Hasp does not do
+
+- "Paid" and `hasp:paid` come from the buyer's browser. A shop that delivers something should confirm `SUCCESS` with the status link or its own NEAR account.
+- Without a NEAR Intents partner key, 1Click adds a 0.25% fee, inside the quoted amount the buyer pays. Hasp adds no fee.
+- A buyer who sends less than the quote, or after the address goes cold, is refunded to the address they gave. Refunds are handled by NEAR Intents, not by Hasp.
+- The refund address check is a format check per chain. It cannot know whether the buyer controls that address.
+- There is no list of a shop's past payments yet. The shop sees each payment arrive in its NEAR account.
+
+## Code
+
+```text
+public/checkout.js            the widget: coin list, quote, deposit address, status, refund address
+public/shop.html              a plain HTML page using it
+src/routes/index.tsx          the site: live button, button maker, how it works
 src/components/mark.tsx       the mark
-scripts/hasp-agent.mjs        dry quote, deposits nothing
-migrations/0003_hasp_agent.sql  one row per account
-public/favicon.png            the browser icon
-docs/logo.png                 the mark used above
-LICENSE                       MIT
-SECURITY.md                   how to report a problem
-CODE_OF_CONDUCT.md            how to take part
-CONTRIBUTING.md               what a patch may not change
-docs/home.png                 the page shown above
+scripts/hasp-agent.mjs        an agent paying at a checkout, inside its rule
+scripts/agent-rule.mjs        the rule: merchants, per purchase, per day
+scripts/agent-rule.json       the rule the agent runs with
+scripts/checkout.test.mjs     tests for the widget's logic
+scripts/hasp-agent.test.mjs   tests for the rule and the agent's refusals
+.github/workflows/ci.yml      tests, the agent against live Intents, and what a reviewer runs
+docs/logo.png                 the logo above
 ```
 
-The site is the app in `src/`. The files above are the clasp.
+`npm test` runs Hasp's tests. `npm run test:shell` runs the generated app shell's own tests; they read the Grok App Builder's workspace files under `.grok/`, which are not in this repository, so several fail here. None of them test Hasp.
+
+CI runs on every push: the widget and agent tests; the agent's dry run and its refusal against live NEAR Intents; and `npm ci`, `npm test`, the type check, `npm run build` and `npm run dev` answering on port 8080 with `/checkout.js` served.
+
+## Run it
+
+```sh
+npm ci
+npm run dev        # http://127.0.0.1:8080, the widget at /checkout.js, the demo shop at /shop.html
+npm test
+```
+
+## How it got here
+
+Hasp was submitted on 1 November as a rule in front of one swap: an agent could swap at most 0.02 NEAR, only into USDC, once per account. That rule lived in the site's database, so an agent that called NEAR Intents directly was not stopped, and the README said so. On 11 November it became the checkout above. The rule idea moved into agent mode, where an agent's purchases are checked against its own list and limits before any quote. The old swap, its database table (`migrations/0003_hasp_agent.sql`) and its proof are kept in the history.
 
 ## The other project
 
-This is the second project. The first is [Kyrona](https://github.com/thesithunyein/kyrona), a spending desk with its own contract and its own key. Hasp does not use that contract, that key, or that desk. The two share no product code. Both repositories started from the same Grok App Builder shell, so those generated files are identical in each; the clasp (`src/lib/hasp/`, `src/routes/index.tsx`, `scripts/hasp-agent.mjs`, `migrations/0003_hasp_agent.sql`) is Hasp's alone.
+This is the second project. The first is [Kyrona](https://github.com/thesithunyein/kyrona), spending limits for AI agents enforced by a NEAR contract with its own key. Hasp does not use that contract, that key or that desk, and the two share no product code. Both repositories started from the same Grok App Builder shell, so those generated files are identical in each; the checkout (`public/checkout.js`, `public/shop.html`, `src/routes/index.tsx`, `scripts/hasp-agent.mjs`, `scripts/agent-rule.*`) is Hasp's alone.
 
 ## Built with
 
-Written for this hackathon, from 1 November 2026. The app shell (TanStack Start, React, Vite, the auth and preview wiring under `src/lib/auth`, `src/lib/app-data`, `server/` and most of `scripts/`) came from a Grok App Builder export. The clasp itself is new: the files listed under Project. Parts of the code were written with AI assistance. Settlement uses the NEAR Intents 1Click API.
+Written for this hackathon, from 1 November 2026. The app shell (TanStack Start, React, Vite, the auth and preview wiring under `src/lib/auth`, `src/lib/app-data`, `server/`, `migrations/auth`, and the build and preview helpers in `scripts/`) came from a Grok App Builder export. Everything listed under Code is new. Parts of the code were written with AI assistance. Settlement uses the NEAR Intents 1Click API. The agent signs with `@near-js`.
 
-## What this does not enforce
+## License
 
-- The rule is checked by this site and stored in its database. An agent that calls the NEAR Intents 1Click API directly, without Hasp, is not stopped. Hasp shows what a rule in front of a swap looks like; it is not an on-chain lock.
-- There is no sign-in. Anyone can enter any account and open that account's one clasp, which then counts as used.
-- Send the deposit from the agent account itself. The quote sets that account as the refund address, so a failed swap refunds it, not whoever sent the NEAR.
-
-## What this is not
-
-- Not a wallet, and not a key.
-- Not a job board, a chat, or a second spending desk.
-- A dry quote is not a deposit.
-- A deposit address is not a settled swap.
+[MIT](LICENSE). Copyright 2026 Sithu Nyein.
