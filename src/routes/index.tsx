@@ -71,8 +71,8 @@ function Home() {
           </div>
         </nav>
 
-        <section className="mt-12 grid gap-10 md:mt-20 md:grid-cols-12 md:items-center">
-          <div className="md:col-span-7">
+        <section className="mt-10 grid gap-10 md:mt-16 md:grid-cols-12 md:items-start">
+          <div className="md:col-span-7 md:pt-10">
             <p className="text-xs uppercase tracking-[0.14em] text-clasp">Crypto checkout</p>
             <h1 className="mt-4 font-display text-5xl leading-[1.02] text-balance md:text-7xl">Get paid in any coin.</h1>
             <p className="mt-5 max-w-md text-pretty text-lg leading-relaxed text-mute">
@@ -88,9 +88,9 @@ function Home() {
               <li className="flex items-center gap-2"><IconShield />We never hold your money</li>
             </ul>
           </div>
-          <div className="relative md:col-span-5">
+          <div className="relative mx-auto w-full max-w-sm md:col-span-5">
             <FlowArt />
-            <div className="relative -mt-6">
+            <div className="relative mt-1">
               <CheckoutPreview />
             </div>
           </div>
@@ -177,21 +177,20 @@ function CheckoutPreview() {
     { c: COINS[0], name: "NEAR", chain: "NEAR", amt: "1.41" },
     { c: { t: "USDC", bg: "#2563c9", fg: "#ffffff" }, name: "USDC", chain: "Base", amt: "5.07" },
     { c: COINS[1], name: "ETH", chain: "Arbitrum", amt: "0.0024" },
-    { c: COINS[2], name: "SOL", chain: "Solana", amt: "0.061" },
   ];
   return (
-    <div className="tilt rounded-card border border-line bg-card p-5" aria-hidden="true">
+    <div className="tilt rounded-card border border-line bg-card p-4" aria-hidden="true">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-[0.14em] text-mute">Pay with crypto</p>
-          <p className="mt-1 font-display text-2xl">$5 · Coffee beans</p>
+          <p className="mt-1 font-display text-xl">$5 · Coffee beans</p>
         </div>
         <span className="grid size-8 place-items-center rounded-full bg-paper text-mute">×</span>
       </div>
-      <p className="mt-3 text-sm text-mute">Pick a coin to pay with.</p>
-      <ul className="mt-3 grid gap-2">
+      <p className="mt-2 text-sm text-mute">Pick a coin to pay with.</p>
+      <ul className="mt-2 grid gap-1.5">
         {rows.map((r, i) => (
-          <li key={r.name + r.chain} className={`flex items-center justify-between rounded-xl border px-3 py-2.5 ${i === 0 ? "border-ink" : "border-line"}`}>
+          <li key={r.name + r.chain} className={`flex items-center justify-between rounded-xl border px-3 py-2 ${i === 0 ? "border-ink" : "border-line"}`}>
             <span className="flex items-center gap-3">
               <CoinBadge {...r.c} size={28} />
               <span>
@@ -203,8 +202,8 @@ function CheckoutPreview() {
           </li>
         ))}
       </ul>
-      <div className="mt-4 rounded-full bg-ink py-3 text-center text-sm text-on-clasp">Continue</div>
-      <p className="mt-3 flex items-center justify-center gap-2 text-xs text-mute"><IconShield />Powered by NEAR Intents</p>
+      <div className="mt-3 rounded-full bg-ink py-2.5 text-center text-sm text-on-clasp">Continue</div>
+      <p className="mt-2.5 flex items-center justify-center gap-2 text-xs text-mute"><IconShield />Powered by NEAR Intents</p>
     </div>
   );
 }
@@ -352,15 +351,16 @@ function CoinBadge({ t, bg, fg, size = 28 }: { t: string; bg: string; fg: string
 
 /** Coins from different chains flow into one USDC coin. */
 function FlowArt() {
+  // NEAR, ETH, SOL, BTC, USDT on an arc, top to bottom: NEAR, BTC, ETH, SOL, USDT.
   const starts = [
-    { x: 40, y: 40 },
-    { x: 24, y: 104 },
-    { x: 40, y: 168 },
-    { x: 96, y: 22 },
-    { x: 96, y: 186 },
+    { x: 72, y: 26 },
+    { x: 26, y: 104 },
+    { x: 40, y: 148 },
+    { x: 40, y: 60 },
+    { x: 72, y: 184 },
   ];
   return (
-    <svg viewBox="0 0 400 210" className="w-full" role="img" aria-label="Coins from many chains turn into USDC">
+    <svg viewBox="0 0 400 214" className="w-full" role="img" aria-label="Coins from many chains turn into USDC">
       <defs>
         <linearGradient id="usdc-face" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#4f8fe0" />
