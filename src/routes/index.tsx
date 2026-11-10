@@ -71,8 +71,8 @@ function Home() {
           </div>
         </nav>
 
-        <section className="mt-10 grid gap-10 md:mt-16 md:grid-cols-12 md:items-start">
-          <div className="md:col-span-7 md:pt-10">
+        <section className="mt-12 grid gap-10 md:mt-20 md:grid-cols-12 md:items-center">
+          <div className="md:col-span-7">
             <p className="text-xs uppercase tracking-[0.14em] text-clasp">Crypto checkout</p>
             <h1 className="mt-4 font-display text-5xl leading-[1.02] text-balance md:text-7xl">Get paid in any coin.</h1>
             <p className="mt-5 max-w-md text-pretty text-lg leading-relaxed text-mute">
@@ -88,11 +88,8 @@ function Home() {
               <li className="flex items-center gap-2"><IconShield />We never hold your money</li>
             </ul>
           </div>
-          <div className="relative mx-auto w-full max-w-sm md:col-span-5">
+          <div className="mx-auto w-full max-w-md md:col-span-5">
             <FlowArt />
-            <div className="relative mt-1">
-              <CheckoutPreview />
-            </div>
           </div>
         </section>
 
@@ -108,11 +105,17 @@ function Home() {
         </div>
 
         <Section id="how" kicker="How it works" title="Three steps.">
-          <ol className="grid gap-3 md:grid-cols-3">
-            <Step icon={<IconCode />} n="1" title="Paste one line">Add your button to any website. No server, no account.</Step>
-            <Step icon={<IconCoins />} n="2" title="Buyer picks a coin">They pay from the wallet they already use.</Step>
-            <Step icon={<IconWallet />} n="3" title="You get USDC">The exact amount lands in your NEAR wallet, in about a minute.</Step>
-          </ol>
+          <div className="grid gap-6 md:grid-cols-12 md:items-start">
+            <ol className="grid gap-3 md:col-span-7">
+              <Step icon={<IconCode />} n="1" title="Paste one line">Add your button to any website. No server, no account.</Step>
+              <Step icon={<IconCoins />} n="2" title="Buyer picks a coin">They pay from the wallet they already use.</Step>
+              <Step icon={<IconWallet />} n="3" title="You get USDC">The exact amount lands in your NEAR wallet, in about a minute.</Step>
+            </ol>
+            <div className="md:col-span-5">
+              <p className="mb-3 text-xs uppercase tracking-[0.14em] text-mute">What your buyer sees</p>
+              <CheckoutPreview />
+            </div>
+          </div>
         </Section>
 
         <Section id="make" kicker="Get a button" title="Make yours in 10 seconds.">
@@ -179,7 +182,7 @@ function CheckoutPreview() {
     { c: COINS[1], name: "ETH", chain: "Arbitrum", amt: "0.0024" },
   ];
   return (
-    <div className="tilt rounded-card border border-line bg-card p-4" aria-hidden="true">
+    <div className="rounded-card border border-line bg-card p-4 shadow-[0_24px_60px_-36px_rgba(26,23,20,0.4)]" aria-hidden="true">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-[0.14em] text-mute">Pay with crypto</p>
@@ -291,13 +294,12 @@ function Section({ id, kicker, title, children }: { id: string; kicker: string; 
 
 function Step({ icon, n, title, children }: { icon: ReactNode; n: string; title: string; children: ReactNode }) {
   return (
-    <li className="rounded-card border border-line bg-card p-5 transition-transform duration-300 hover:-translate-y-0.5">
-      <div className="flex items-center justify-between">
-        <span className="grid size-11 place-items-center rounded-2xl bg-paper text-clasp shadow-[inset_0_0_0_1px_var(--color-line)]">{icon}</span>
-        <span className="font-display text-xl text-line">{n}</span>
+    <li className="flex gap-4 rounded-card border border-line bg-card p-5">
+      <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-paper text-clasp shadow-[inset_0_0_0_1px_var(--color-line)]">{icon}</span>
+      <div>
+        <p className="font-medium"><span className="mr-2 text-mute">{n}.</span>{title}</p>
+        <p className="mt-1 text-pretty text-sm leading-relaxed text-mute">{children}</p>
       </div>
-      <p className="mt-4 font-medium">{title}</p>
-      <p className="mt-2 text-pretty text-sm leading-relaxed text-mute">{children}</p>
     </li>
   );
 }
