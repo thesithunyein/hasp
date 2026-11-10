@@ -58,92 +58,91 @@ function Home() {
 
   return (
     <main className="min-h-screen bg-paper text-ink">
-      <div className="mx-auto max-w-5xl px-5 py-8 md:px-10 md:py-12">
+      <div className="mx-auto max-w-5xl px-5 py-6 md:px-10 md:py-10">
         <nav className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-3">
             <Mark />
-            <p className="font-display text-2xl tracking-tight">Hasp</p>
-          </div>
+            <span className="font-display text-2xl tracking-tight">Hasp</span>
+          </a>
           <div className="flex items-center gap-5 text-sm text-mute">
-            <a href="#make" className="hover:text-ink">Make a button</a>
-            <a href="#agents" className="hidden hover:text-ink sm:inline">For agents</a>
+            <a href="#faq" className="hidden hover:text-ink sm:inline">FAQ</a>
             <a href="https://github.com/thesithunyein/hasp" className="hover:text-ink">GitHub</a>
+            <a href="#make" className="rounded-full bg-ink px-4 py-2 text-on-clasp hover:bg-clasp">Get a button</a>
           </div>
         </nav>
 
-        <section className="mt-12 grid gap-10 md:mt-16 md:grid-cols-12 md:items-center">
+        <section className="mt-12 grid gap-10 md:mt-20 md:grid-cols-12 md:items-center">
           <div className="md:col-span-7">
-            <p className="text-xs uppercase tracking-[0.14em] text-mute">Checkout for almost any coin</p>
-            <h1 className="mt-4 font-display text-5xl leading-[1.02] text-balance md:text-6xl">
-              Take payment in any coin. Get USDC on NEAR.
-            </h1>
-            <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-mute">
-              One script tag on your page. Your buyer pays from NEAR, Ethereum, Base, Arbitrum, Solana, Bitcoin and dozens of other chains.
-              NEAR Intents converts it, and the exact USDC you asked for lands in your NEAR account.
+            <p className="text-xs uppercase tracking-[0.14em] text-clasp">Crypto checkout</p>
+            <h1 className="mt-4 font-display text-5xl leading-[1.02] text-balance md:text-7xl">Get paid in any coin.</h1>
+            <p className="mt-5 max-w-md text-pretty text-lg leading-relaxed text-mute">
+              Your buyer pays with the coin they have. You get USDC in your NEAR wallet.
             </p>
-            <ul className="mt-6 grid max-w-xl gap-2 text-sm text-ink sm:grid-cols-3">
-              <li className="rounded-xl border border-line bg-card px-3 py-2">No server to run</li>
-              <li className="rounded-xl border border-line bg-card px-3 py-2">No sign-up</li>
-              <li className="rounded-xl border border-line bg-card px-3 py-2">Hasp never holds funds</li>
-            </ul>
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <a href="#make" className="rounded-full bg-ink px-6 py-3 text-on-clasp hover:bg-clasp">Get your button</a>
+              <a href="/shop.html" className="rounded-full border border-line bg-card px-6 py-3 hover:border-ink">See a demo shop</a>
+            </div>
+            <p className="mt-6 text-sm text-mute">Free · No sign-up · We never hold your money</p>
           </div>
           <div className="md:col-span-5">
             <DemoProduct />
           </div>
         </section>
 
-        <Section id="how" kicker="How it works" title="Four steps, no account anywhere.">
-          <ol className="grid gap-3 md:grid-cols-4">
-            <Step n="1" title="You add the tag">
-              Your NEAR account and a price in dollars go in the tag. That is all Hasp needs.
-            </Step>
-            <Step n="2" title="The buyer picks a coin">
-              From 200+ coins on 30+ chains, with a live estimate. They give an address of their own for a refund.
-            </Step>
-            <Step n="3" title="NEAR Intents quotes it">
-              It works out the exact input for your exact USDC and opens a one-time deposit address on the buyer's chain.
-            </Step>
-            <Step n="4" title="USDC arrives">
-              The buyer sends, Intents swaps, and the USDC lands in your NEAR account. The button shows Paid.
-            </Step>
+        <p className="mt-14 border-y border-line py-4 text-center text-sm text-mute">
+          Pay with NEAR · USDC · USDT · ETH · SOL · BTC · and 200+ more coins on 30+ chains
+        </p>
+
+        <Section id="how" kicker="How it works" title="Three steps.">
+          <ol className="grid gap-3 md:grid-cols-3">
+            <Step n="1" title="Paste one line">Add your button to any website. No server, no account.</Step>
+            <Step n="2" title="Buyer picks a coin">They pay from the wallet they already use.</Step>
+            <Step n="3" title="You get USDC">The exact amount lands in your NEAR wallet, in about a minute.</Step>
           </ol>
         </Section>
 
-        <Section id="make" kicker="Make a button" title="Your button, ready to paste.">
+        <Section id="make" kicker="Get a button" title="Make yours in 10 seconds.">
           <ButtonMaker ready={ready} />
         </Section>
 
-        <Section id="agents" kicker="For AI agents" title="An agent can pay at the same checkout, inside a rule.">
+        <Section id="agents" kicker="For AI agents" title="Agents can pay too, with limits.">
           <div className="grid gap-6 md:grid-cols-2">
-            <p className="text-pretty leading-relaxed text-mute">
-              <code className="rounded bg-card px-1.5 py-0.5 text-ink">scripts/hasp-agent.mjs</code> buys through the same NEAR Intents quote a person uses.
-              Before it asks for a quote, it checks a rule: only merchants on its list, at most a set amount per purchase and per day. Outside the rule it stops, and nothing is quoted or sent.
-              It signs with its own NEAR key, so the rule is the agent's own discipline, not a lock on the key.
-            </p>
-            <pre className="overflow-x-auto rounded-card border border-line bg-card p-5 text-sm leading-relaxed text-ink">
-{`node scripts/hasp-agent.mjs buy \\
-  --to sithunyein.near --usd 1 --item "A coffee"
+            <div className="text-pretty leading-relaxed text-mute">
+              <p>An AI agent can buy at any Hasp checkout. You set the rules first:</p>
+              <ul className="mt-3 grid gap-2 text-ink">
+                <li>· Which shops it may pay</li>
+                <li>· How much per purchase</li>
+                <li>· How much per day</li>
+              </ul>
+              <p className="mt-3">Outside the rules, it stops before asking for a price.</p>
+            </div>
+            <pre className="overflow-x-auto rounded-card border border-line bg-card p-5 text-[13px] leading-relaxed text-ink">
+{`$ node scripts/hasp-agent.mjs buy \
+    --to sithunyein.near --usd 1
 
 rule     sithunyein.near is on the list; $1 is within $2 per purchase and $5 left today
-quote    0.2866 NEAR in, 1.0 USDC out to sithunyein.near for A coffee
+quote    0.2866 NEAR in, 1.0 USDC out to sithunyein.near
 dry run  nothing sent (add --send to pay)`}
             </pre>
           </div>
         </Section>
 
-        <Section id="limits" kicker="What Hasp does not do" title="Plain limits.">
-          <ul className="grid gap-3 text-pretty text-sm leading-relaxed text-mute md:grid-cols-2">
-            <Limit>The "Paid" message and the hasp:paid event come from the buyer's browser. Before you ship something, confirm the payment with the NEAR Intents status link or your NEAR account.</Limit>
-            <Limit>Without a NEAR Intents partner key, 1Click adds a 0.25% fee, paid by the buyer as part of the quoted amount. Hasp adds no fee of its own.</Limit>
-            <Limit>A buyer who sends less than the quote, or after the address goes cold, gets a refund to the address they gave, not the item.</Limit>
-            <Limit>BNB Chain and Tron have high minimums on NEAR Intents, so they only appear for large prices.</Limit>
-          </ul>
+        <Section id="faq" kicker="FAQ" title="Questions.">
+          <dl className="grid gap-3 md:grid-cols-2">
+            <Faq q="What does it cost?">Hasp is free. NEAR Intents takes 0.25%, and that is already in the price the buyer sees.</Faq>
+            <Faq q="Who holds the money?">Nobody. It goes from the buyer to you through NEAR Intents. Hasp never touches it.</Faq>
+            <Faq q="What if a payment fails?">The buyer gets their coins back to their own address, automatically.</Faq>
+            <Faq q="How do I know I was paid?">Check your NEAR wallet. Before you ship anything, trust your wallet, not the button.</Faq>
+            <Faq q="Which coins work?">200+ coins on 30+ chains, including NEAR, ETH, SOL, BTC, USDC and USDT.</Faq>
+            <Faq q="What do I need?">A NEAR account, like yourname.near. That is where your USDC goes.</Faq>
+          </dl>
         </Section>
 
-        <footer className="mt-16 border-t border-line pt-6 text-sm text-mute">
-          Built at NEAR HACKATHON 2026. Settlement by the NEAR Intents 1Click API. The idea is the "universal checkout widget" from{" "}
-          <a className="underline hover:text-ink" href="https://crypto.news/near-co-founder-pitches-ai-pets-private-trading/">Illia Polosukhin's list of things to build on NEAR</a>.
-          {" "}Source on <a className="underline hover:text-ink" href="https://github.com/thesithunyein/hasp">GitHub</a>, MIT.
+        <footer className="mt-16 flex flex-col gap-2 border-t border-line pt-6 text-sm text-mute md:flex-row md:justify-between">
+          <p>Built at NEAR HACKATHON 2026. Payments by NEAR Intents.</p>
+          <p>
+            <a className="underline hover:text-ink" href="https://github.com/thesithunyein/hasp">Source on GitHub</a> · MIT
+          </p>
         </footer>
       </div>
     </main>
@@ -153,15 +152,13 @@ dry run  nothing sent (add --send to pay)`}
 function DemoProduct() {
   return (
     <div className="rounded-card border border-line bg-card p-6 shadow-[0_20px_60px_-30px_rgba(26,23,20,0.35)]">
-      <p className="text-xs uppercase tracking-[0.14em] text-mute">A real button</p>
-      <p className="mt-3 font-display text-3xl">Tip the builder</p>
+      <p className="text-xs uppercase tracking-[0.14em] text-mute">Try it for real</p>
+      <p className="mt-3 font-display text-3xl">Send a $1 tip</p>
       <p className="mt-2 text-sm leading-relaxed text-mute">
-        $1 to <span className="text-ink">{DEMO_TO}</span>, who built Hasp. Pay with any coin you hold. Nothing is shipped; it is a tip, and a way to see the whole flow on mainnet.
+        Pay with any coin you have. It goes to {DEMO_TO}, who built Hasp.
       </p>
       <div className="mt-5 min-h-12" data-hasp-to={DEMO_TO} data-hasp-usd="1" data-hasp-item="A tip for Hasp" data-hasp-label="Tip $1" />
-      <p className="mt-4 text-xs text-mute">
-        The same button on a plain HTML page: <a className="underline hover:text-ink" href="/shop.html">the demo shop</a>.
-      </p>
+      <p className="mt-4 text-xs text-mute">This is a real payment on NEAR mainnet.</p>
     </div>
   );
 }
@@ -199,24 +196,24 @@ function ButtonMaker({ ready }: { ready: boolean }) {
   return (
     <div className="grid gap-6 md:grid-cols-12">
       <div className="grid gap-4 md:col-span-5">
-        <Field label="Your NEAR account" hint="The USDC is paid here.">
+        <Field label="Your NEAR account" hint="Where your USDC goes.">
           <input value={to} onChange={(e) => setTo(e.target.value)} placeholder="yourname.near" spellCheck={false} autoComplete="off" className="h-12 w-full rounded-xl border border-line bg-card px-4 outline-none focus:border-ink" />
-          {to && !okTo ? <span className="mt-1 block text-sm text-[#9d2c2c]">That is not a NEAR account.</span> : null}
+          {to && !okTo ? <span className="mt-1 block text-sm text-[#9d2c2c]">That is not a NEAR account. Try yourname.near.</span> : null}
         </Field>
-        <Field label="Price in US dollars" hint="Paid out as exactly this much USDC.">
+        <Field label="Price (USD)" hint="You get exactly this much USDC.">
           <input value={usd} onChange={(e) => setUsd(e.target.value)} inputMode="decimal" className="h-12 w-full rounded-xl border border-line bg-card px-4 tabular-nums outline-none focus:border-ink" />
-          {!okUsd ? <span className="mt-1 block text-sm text-[#9d2c2c]">Use a price like 5 or 4.50, up to 10,000.</span> : null}
+          {!okUsd ? <span className="mt-1 block text-sm text-[#9d2c2c]">Use a price like 5 or 4.50.</span> : null}
         </Field>
-        <Field label="What it is for" hint="Shown to the buyer.">
+        <Field label="What are you selling?" hint="The buyer sees this.">
           <input value={item} onChange={(e) => setItem(e.target.value)} maxLength={80} className="h-12 w-full rounded-xl border border-line bg-card px-4 outline-none focus:border-ink" />
         </Field>
       </div>
       <div className="md:col-span-7">
         <div className="rounded-card border border-line bg-card p-5">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm text-mute">Paste this where the button should go</p>
+            <p className="text-sm text-mute">Paste this into your website</p>
             <button type="button" onClick={copy} className="rounded-full bg-ink px-4 py-2 text-sm text-on-clasp">
-              {copied ? "Copied" : "Copy"}
+              {copied ? "Copied" : "Copy code"}
             </button>
           </div>
           <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-all rounded-xl bg-paper p-4 text-[13px] leading-relaxed">{snippet}</pre>
@@ -225,11 +222,11 @@ function ButtonMaker({ ready }: { ready: boolean }) {
             {okTo && okUsd ? (
               <div key={previewKey} data-hasp-to={account} data-hasp-usd={usd.trim()} data-hasp-item={item.trim()} />
             ) : (
-              <p className="text-sm text-mute">Enter your NEAR account to see your button.</p>
+              <p className="text-sm text-mute">Type your NEAR account to see your button.</p>
             )}
           </div>
           {okTo && okUsd ? (
-            <p className="mt-3 text-xs text-mute">The preview is live: paying it sends real money to {account}.</p>
+            <p className="mt-3 text-xs text-mute">This preview is live. Paying it sends real money to {account}.</p>
           ) : null}
         </div>
       </div>
@@ -267,6 +264,11 @@ function Field({ label, hint, children }: { label: string; hint: string; childre
   );
 }
 
-function Limit({ children }: { children: ReactNode }) {
-  return <li className="rounded-xl border border-line bg-card px-4 py-3">{children}</li>;
+function Faq({ q, children }: { q: string; children: ReactNode }) {
+  return (
+    <div className="rounded-xl border border-line bg-card px-5 py-4">
+      <dt className="font-medium">{q}</dt>
+      <dd className="mt-1 text-pretty text-sm leading-relaxed text-mute">{children}</dd>
+    </div>
+  );
 }

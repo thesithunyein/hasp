@@ -32,9 +32,9 @@ No wallet is needed for steps 1 to 3. Nothing moves until a buyer sends coins to
 
 | Do | See |
 |---|---|
-| 1. Open [thehasp.vercel.app](https://thehasp.vercel.app), choose **Tip $1**, pick a coin, give a refund address on that coin's chain | A one-time deposit address from NEAR Intents and the exact amount to send, for example `0.286647 NEAR`. The status line reads "Waiting for your payment." |
+| 1. Open [thehasp.vercel.app](https://thehasp.vercel.app), choose **Tip $1**, pick a coin, give a refund address on that coin's chain | A one-time deposit address from NEAR Intents and the exact amount to send, for example `0.286647 NEAR`. The status line reads "Waiting for your payment…" |
 | 2. Open [the demo shop](https://thehasp.vercel.app/shop.html) | The same button on a plain HTML page with no framework: two `<script>` tags, two prices |
-| 3. In **Make a button** on the site, enter a NEAR account and a price | The tag to paste, and a live preview of the button it makes |
+| 3. In **Get a button** on the site, enter a NEAR account and a price | The tag to paste, and a live preview of the button it makes |
 | 4. `node scripts/hasp-agent.mjs buy --to sithunyein.near --usd 1 --item "A coffee"` | `rule` allows it, then a live mainnet `quote`, then `dry run  nothing sent` |
 | 5. `node scripts/hasp-agent.mjs buy --to stranger.near --usd 1` | `STOPPED: stranger.near is not on the agent's list of merchants`, exit code 2, no quote asked for |
 | 6. `npm ci && npm test` | 17 tests pass: prices, accounts, refund addresses, the coin list, the exact quote, the agent's rule |

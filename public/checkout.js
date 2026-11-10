@@ -118,13 +118,13 @@
   }
 
   var STATUS = {
-    PENDING_DEPOSIT: "Waiting for your payment.",
-    KNOWN_DEPOSIT_TX: "Your payment is seen. Waiting for it to confirm.",
-    INCOMPLETE_DEPOSIT: "Less than the amount arrived. Send the rest, or it comes back to you after the deadline.",
-    PROCESSING: "Received. Converting to USDC.",
+    PENDING_DEPOSIT: "Waiting for your payment…",
+    KNOWN_DEPOSIT_TX: "Payment seen. Confirming…",
+    INCOMPLETE_DEPOSIT: "Not enough arrived. Send the rest, or you get it back later.",
+    PROCESSING: "Received. Almost done…",
     SUCCESS: "Paid.",
-    REFUNDED: "Not paid. Your coins went back to your refund address.",
-    FAILED: "Not paid. NEAR Intents could not complete it.",
+    REFUNDED: "Not paid. Your coins were sent back to you.",
+    FAILED: "Not paid. Something went wrong on the network.",
   };
 
   /**
@@ -155,7 +155,7 @@
   }
 
   function statusText(status) {
-    return STATUS[status] || "Checking the payment.";
+    return STATUS[status] || "Checking…";
   }
 
   function finalStatus(status) {
@@ -330,8 +330,8 @@
     ]));
     body.forEach(function (n) { if (n) self.box.appendChild(n); });
     this.box.appendChild(el("p", { class: "foot" }, [
-      "Settled by NEAR Intents. Hasp never holds your coins. ",
-      el("a", { href: "https://thehasp.vercel.app", target: "_blank", rel: "noopener", text: "About Hasp" }),
+      "Powered by NEAR Intents. Hasp never holds your money. ",
+      el("a", { href: "https://thehasp.vercel.app", target: "_blank", rel: "noopener", text: "Hasp" }),
     ]));
   };
 
@@ -342,9 +342,9 @@
 
   Checkout.prototype.showCoins = function () {
     var self = this;
-    var note = el("p", { class: "mute", text: "To " + this.cfg.to + ", who receives " + money(this.cfg.usd) + " in USDC. Pick what you pay with." });
+    var note = el("p", { class: "mute", text: "Pick a coin to pay with." });
     var grid = el("div", { class: "grid" }, [el("p", { class: "mute", text: "Loading coins." })]);
-    var more = el("label", null, ["Another coin"]);
+    var more = el("label", null, ["Or choose another coin"]);
     var err = el("p", { class: "err" });
     this.frame("Pay with crypto", this.heading(), [note, grid, more, err]);
     getTokens().then(function (tokens) {
@@ -357,7 +357,7 @@
           el("span", { text: "on " + chainName(t.blockchain) + (est ? " · about " + (est < 1 ? est.toPrecision(3) : est.toFixed(2)) : "") }),
         ]));
       });
-      var select = el("select", { "aria-label": "Another coin" }, [el("option", { value: "", text: "Choose from " + list.length + " coins" })]);
+      var select = el("select", { "aria-label": "Another coin" }, [el("option", { value: "", text: list.length + " coins" })]);
       list.forEach(function (t, i) { select.appendChild(el("option", { value: String(i), text: coinName(t) + " on " + chainName(t.blockchain) })); });
       select.addEventListener("change", function () { if (select.value) self.showRefund(list[Number(select.value)]); });
       more.appendChild(select);
@@ -370,15 +370,15 @@
     var saved = load("hasp:refund:" + chain) || "";
     var input = el("input", { value: saved, autocomplete: "off", spellcheck: "false", placeholder: chain === "near" ? "you.near" : "Your " + chainName(chain) + " address" });
     var err = el("p", { class: "err" });
-    var go = el("button", { class: "btn go", type: "button", text: "Get the address to pay" });
-    var back = el("button", { class: "link", type: "button", text: "Pick another coin", on: { click: function () { self.showCoins(); } } });
+    var go = el("button", { class: "btn go", type: "button", text: "Continue" });
+    var back = el("button", { class: "link", type: "button", text: "← Pick another coin", on: { click: function () { self.showCoins(); } } });
     go.addEventListener("click", function () {
       var problem = refundProblem(chain, input.value);
       if (problem) { err.textContent = problem; return; }
       var refundTo = input.value.trim();
       save("hasp:refund:" + chain, refundTo);
       go.disabled = true;
-      go.textContent = "Asking NEAR Intents";
+      go.textContent = "Getting your price…";
       err.textContent = "";
       postQuote(quoteRequest({ originAsset: token.assetId, amount: self.cfg.amount, refundTo: refundTo, to: self.cfg.to, chain: chain }))
         .then(function (res) {
@@ -392,11 +392,11 @@
           save(self.key, payment);
           self.showPay(payment);
         })
-        .catch(function (e) { go.disabled = false; go.textContent = "Get the address to pay"; err.textContent = e.message; });
+        .catch(function (e) { go.disabled = false; go.textContent = "Continue"; err.textContent = e.message; });
     });
-    this.frame("Pay with " + coinName(token) + " on " + chainName(chain), this.heading(), [
-      el("p", { class: "mute", text: "If the payment cannot go through, NEAR Intents sends your " + coinName(token) + " back. Where should it go?" }),
-      el("label", null, ["Your " + chainName(chain) + " address for a refund", input]),
+    this.frame(coinName(token) + " on " + chainName(chain), this.heading(), [
+      el("p", { class: "mute", text: "If anything goes wrong, your " + coinName(token) + " comes back here." }),
+      el("label", null, ["Your " + chainName(chain) + " address", input]),
       go, err, el("p", null, [back]),
     ]);
   };
@@ -406,19 +406,19 @@
     var state = el("div", { class: "state", role: "status", text: statusText("PENDING_DEPOSIT") });
     var tx = el("input", { placeholder: p.chain === "near" ? "Transaction hash (optional)" : "Transaction hash (optional)", autocomplete: "off", spellcheck: "false" });
     var txNote = el("p", { class: "mute" });
-    var sent = el("button", { class: "link", type: "button", text: "I paid: speed it up with the transaction hash" });
+    var sent = el("button", { class: "link", type: "button", text: "Already paid? Add your transaction ID" });
     var txWrap = el("div", { hidden: "" }, [tx, el("button", { class: "copy", type: "button", text: "Send hash", on: { click: function () {
       if (!tx.value.trim()) return;
       submitTx(p.depositAddress, tx.value.trim(), p.memo).then(function (ok) { txNote.textContent = ok ? "Sent. NEAR Intents is looking for it." : "NEAR Intents did not accept that hash. It still watches the address."; });
     } } }), txNote]);
     sent.addEventListener("click", function () { txWrap.hidden = false; sent.hidden = true; });
-    var restart = el("button", { class: "link", type: "button", text: "Start over with another coin", on: { click: function () { clearTimeout(self.timer); save(self.key, null); self.showCoins(); } } });
+    var restart = el("button", { class: "link", type: "button", text: "← Pay with another coin", on: { click: function () { clearTimeout(self.timer); save(self.key, null); self.showCoins(); } } });
     var left = timeLeft(p.cold || p.deadline);
-    this.frame("Send exactly this", this.heading(), [
+    this.frame("Send exactly", this.heading(), [
       field("Amount", p.amountIn + " " + p.symbol + " on " + chainName(p.chain)),
-      field("To this one-time address", p.depositAddress),
-      p.memo ? field("Memo (required)", p.memo) : null,
-      el("p", { class: "mute", text: "Send it from any wallet" + (left ? ", within " + left : "") + ". A little more is fine: the extra goes back to " + p.refundTo + ". " + this.cfg.to + " receives " + (p.out || this.cfg.usd) + " USDC." }),
+      field("To this address", p.depositAddress),
+      p.memo ? field("Memo (you must add this)", p.memo) : null,
+      el("p", { class: "mute", text: "Send from any wallet" + (left ? " within " + left : "") + ". A little extra is fine; it comes back to you." }),
       state,
       el("p", null, [sent]), txWrap,
       el("p", null, [restart]),
@@ -447,16 +447,16 @@
     var ok = s.status === "SUCCESS";
     var d = s.swapDetails || {};
     var links = el("p", { class: "mute" }, [
-      el("a", { href: API + "/v0/status?depositAddress=" + encodeURIComponent(p.depositAddress), target: "_blank", rel: "noopener", class: "link", text: "NEAR Intents status" }),
+      el("a", { href: API + "/v0/status?depositAddress=" + encodeURIComponent(p.depositAddress), target: "_blank", rel: "noopener", class: "link", text: "Receipt" }),
     ]);
     (d.nearTxHashes || []).slice(-1).forEach(function (h) {
       links.appendChild(document.createTextNode(" · "));
       links.appendChild(el("a", { href: "https://nearblocks.io/txns/" + h, target: "_blank", rel: "noopener", class: "link", text: "NEAR transaction" }));
     });
-    this.frame(ok ? "Done" : "Not paid", this.heading(), [
+    this.frame(ok ? "Thank you" : "Not paid", this.heading(), [
       el("div", { class: "state " + (ok ? "ok" : "bad"), role: "status", text: ok
-        ? (d.amountOutFormatted || p.out) + " USDC reached " + this.cfg.to + "."
-        : statusText(s.status) + (d.refundReason ? " Reason: " + d.refundReason + "." : "") }),
+        ? "Paid. " + this.cfg.to + " got " + (d.amountOutFormatted || p.out) + " USDC."
+        : statusText(s.status) + (d.refundReason ? " (" + d.refundReason + ")" : "") }),
       links,
     ]);
     if (ok && this.origin) {
@@ -486,7 +486,7 @@
       root.appendChild(el("span", { style: "font:13px system-ui;color:#9d2c2c", text: cfg.error }));
     } else {
       root.appendChild(el("button", { class: "btn", type: "button", on: { click: function () { new Checkout(cfg, host).open(); } } }, [
-        cfg.label || "Pay " + money(cfg.usd), el("small", { text: "any coin" }),
+        cfg.label || "Pay " + money(cfg.usd), el("small", { text: "with any coin" }),
       ]));
     }
     place(host);
