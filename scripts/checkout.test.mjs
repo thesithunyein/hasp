@@ -105,3 +105,13 @@ test("time left reads in minutes, hours or days", () => {
   assert.equal(core.timeLeft(new Date(now + 73 * 3600000).toISOString(), now), "about 3 days");
   assert.equal(core.timeLeft(new Date(now - 1000).toISOString(), now), null);
 });
+
+test("coin badges: a chain mark only when the coin is not the chain's own, and only letters in the label", () => {
+  const native = core.coinBadge("ETH", "eth");
+  const bridged = core.coinBadge("USDC", "base");
+  assert.equal((native.match(/<circle/g) || []).length, 3);
+  assert.equal((bridged.match(/<circle/g) || []).length, 4);
+  assert.match(bridged, />B<\/text>/);
+  assert.match(core.coinBadge("wNEAR", "near"), />NEAR<\/text>/);
+  assert.doesNotMatch(core.coinBadge("<img onerror=x>", "near"), /<img/);
+});
