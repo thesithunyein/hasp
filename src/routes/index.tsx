@@ -5,7 +5,6 @@ import { Mark } from "@/components/mark";
 export const Route = createFileRoute("/")({ component: Home });
 
 const SITE = "https://thehasp.vercel.app";
-const DEMO_TO = "sithunyein.near";
 const NAMED = /^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/;
 
 declare global {
@@ -65,8 +64,9 @@ function Home() {
             <span className="font-display text-2xl tracking-tight">Hasp</span>
           </a>
           <div className="flex items-center gap-5 text-sm text-mute">
-            <a href="#faq" className="hidden hover:text-ink sm:inline">FAQ</a>
-            <a href="https://github.com/thesithunyein/hasp" className="hover:text-ink">GitHub</a>
+            <a href="#how" className="hidden hover:text-ink sm:inline">How it works</a>
+            <a href="#pricing" className="hidden hover:text-ink sm:inline">Pricing</a>
+            <a href="#faq" className="hidden hover:text-ink md:inline">FAQ</a>
             <a href="#make" className="rounded-full bg-ink px-4 py-2 text-on-clasp hover:bg-clasp">Get a button</a>
           </div>
         </nav>
@@ -80,7 +80,7 @@ function Home() {
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <a href="#make" className="rounded-full bg-ink px-6 py-3 text-on-clasp hover:bg-clasp">Get your button</a>
-              <a href="/shop.html" className="rounded-full border border-line bg-card px-6 py-3 hover:border-ink">See a demo shop</a>
+              <a href="#how" className="rounded-full border border-line bg-card px-6 py-3 hover:border-ink">How it works</a>
             </div>
             <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-mute">
               <li className="flex items-center gap-2"><IconCheck />Free</li>
@@ -91,7 +91,7 @@ function Home() {
           <div className="relative md:col-span-5">
             <FlowArt />
             <div className="relative -mt-6">
-              <DemoProduct />
+              <CheckoutPreview />
             </div>
           </div>
         </section>
@@ -119,25 +119,29 @@ function Home() {
           <ButtonMaker ready={ready} />
         </Section>
 
-        <Section id="agents" kicker="For AI agents" title="Agents can pay too, with limits.">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="text-pretty leading-relaxed text-mute">
-              <p>An AI agent can buy at any Hasp checkout. You set the rules first:</p>
-              <ul className="mt-3 grid gap-2 text-ink">
-                <li>· Which shops it may pay</li>
-                <li>· How much per purchase</li>
-                <li>· How much per day</li>
-              </ul>
-              <p className="mt-3">Outside the rules, it stops before asking for a price.</p>
-            </div>
-            <pre className="overflow-x-auto rounded-card border border-line bg-card p-5 text-[13px] leading-relaxed text-ink">
-{`$ node scripts/hasp-agent.mjs buy \
-    --to sithunyein.near --usd 1
+        <Section id="features" kicker="Why Hasp" title="Everything a checkout needs.">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+            <Feature icon={<IconCoins />} title="Any coin in">200+ coins on 30+ chains. Your buyer never has to swap first.</Feature>
+            <Feature icon={<IconWallet />} title="Exact USDC out">Set $5, get 5 USDC. No price swings on your side.</Feature>
+            <Feature icon={<IconShield />} title="No custody">Money goes from the buyer to you. We never hold it.</Feature>
+            <Feature icon={<IconCode />} title="Works on any site">Plain HTML, WordPress, Webflow, React. One line.</Feature>
+            <Feature icon={<IconRefresh />} title="Automatic refunds">If a payment fails, the buyer gets their coins back.</Feature>
+            <Feature icon={<IconPulse />} title="Live status">The buyer sees each step until it says Paid.</Feature>
+          </div>
+        </Section>
 
-rule     sithunyein.near is on the list; $1 is within $2 per purchase and $5 left today
-quote    0.2866 NEAR in, 1.0 USDC out to sithunyein.near
-dry run  nothing sent (add --send to pay)`}
-            </pre>
+        <Section id="pricing" kicker="Pricing" title="Free to use.">
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="rounded-card border border-line bg-card p-6">
+              <p className="text-sm text-mute">Hasp</p>
+              <p className="mt-1 font-display text-5xl">$0</p>
+              <p className="mt-3 text-sm leading-relaxed text-mute">No monthly fee. No sign-up. No limits on sales.</p>
+            </div>
+            <div className="rounded-card border border-line bg-card p-6">
+              <p className="text-sm text-mute">Network fee</p>
+              <p className="mt-1 font-display text-5xl">0.25%</p>
+              <p className="mt-3 text-sm leading-relaxed text-mute">Taken by NEAR Intents and already in the price the buyer sees. You get your full price.</p>
+            </div>
           </div>
         </Section>
 
@@ -149,13 +153,17 @@ dry run  nothing sent (add --send to pay)`}
             <Faq q="How do I know I was paid?">Check your NEAR wallet. Before you ship anything, trust your wallet, not the button.</Faq>
             <Faq q="Which coins work?">200+ coins on 30+ chains, including NEAR, ETH, SOL, BTC, USDC and USDT.</Faq>
             <Faq q="What do I need?">A NEAR account, like yourname.near. That is where your USDC goes.</Faq>
+            <Faq q="Does it work on my website?">Yes. Any page that can hold one line of HTML: WordPress, Webflow, Shopify pages, or your own code.</Faq>
+            <Faq q="Can I use it for many products?">Yes. Make one button per product, each with its own price.</Faq>
           </dl>
         </Section>
 
         <footer className="mt-16 flex flex-col gap-2 border-t border-line pt-6 text-sm text-mute md:flex-row md:justify-between">
-          <p>Built at NEAR HACKATHON 2026. Payments by NEAR Intents.</p>
-          <p>
-            <a className="underline hover:text-ink" href="https://github.com/thesithunyein/hasp">Source on GitHub</a> · MIT
+          <p>© 2026 Hasp · Payments by NEAR Intents</p>
+          <p className="flex gap-4">
+            <a className="hover:text-ink" href="#make">Get a button</a>
+            <a className="hover:text-ink" href="#faq">FAQ</a>
+            <a className="hover:text-ink" href="https://github.com/thesithunyein/hasp">Open source</a>
           </p>
         </footer>
       </div>
@@ -163,21 +171,40 @@ dry run  nothing sent (add --send to pay)`}
   );
 }
 
-function DemoProduct() {
+/** A still picture of the checkout window, for the hero. Not a live button. */
+function CheckoutPreview() {
+  const rows = [
+    { c: COINS[0], name: "NEAR", chain: "NEAR", amt: "1.41" },
+    { c: { t: "USDC", bg: "#2563c9", fg: "#ffffff" }, name: "USDC", chain: "Base", amt: "5.07" },
+    { c: COINS[1], name: "ETH", chain: "Arbitrum", amt: "0.0024" },
+    { c: COINS[2], name: "SOL", chain: "Solana", amt: "0.061" },
+  ];
   return (
-    <div className="tilt rounded-card border border-line bg-card p-6">
-      <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-[0.14em] text-mute">Try it for real</p>
-        <span className="flex items-center gap-1.5 rounded-full bg-[#e5f1e8] px-2.5 py-1 text-[11px] text-[#1d5b36]">
-          <span className="size-1.5 rounded-full bg-[#2f8a55]" />Live on mainnet
-        </span>
+    <div className="tilt rounded-card border border-line bg-card p-5" aria-hidden="true">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.14em] text-mute">Pay with crypto</p>
+          <p className="mt-1 font-display text-2xl">$5 · Coffee beans</p>
+        </div>
+        <span className="grid size-8 place-items-center rounded-full bg-paper text-mute">×</span>
       </div>
-      <p className="mt-3 font-display text-3xl">Send a $1 tip</p>
-      <p className="mt-2 text-sm leading-relaxed text-mute">
-        Pay with any coin you have. It goes to {DEMO_TO}, who built Hasp.
-      </p>
-      <div className="mt-5 min-h-12" data-hasp-to={DEMO_TO} data-hasp-usd="1" data-hasp-item="A tip for Hasp" data-hasp-label="Tip $1" />
-      <p className="mt-4 flex items-center gap-2 text-xs text-mute"><IconShield />Paid out in USDC through NEAR Intents.</p>
+      <p className="mt-3 text-sm text-mute">Pick a coin to pay with.</p>
+      <ul className="mt-3 grid gap-2">
+        {rows.map((r, i) => (
+          <li key={r.name + r.chain} className={`flex items-center justify-between rounded-xl border px-3 py-2.5 ${i === 0 ? "border-ink" : "border-line"}`}>
+            <span className="flex items-center gap-3">
+              <CoinBadge {...r.c} size={28} />
+              <span>
+                <span className="block text-sm font-medium">{r.name}</span>
+                <span className="block text-xs text-mute">on {r.chain}</span>
+              </span>
+            </span>
+            <span className="text-sm tabular-nums text-mute">≈ {r.amt}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-4 rounded-full bg-ink py-3 text-center text-sm text-on-clasp">Continue</div>
+      <p className="mt-3 flex items-center justify-center gap-2 text-xs text-mute"><IconShield />Powered by NEAR Intents</p>
     </div>
   );
 }
@@ -393,4 +420,20 @@ function IconUser() {
 }
 function IconShield() {
   return <span className="text-clasp"><Icon><path d="M12 3.5 5 6.2v5.3c0 4.3 2.9 7.6 7 9 4.1-1.4 7-4.7 7-9V6.2z" /><path d="m9 12 2.2 2.2L15.5 10" /></Icon></span>;
+}
+
+function Feature({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-card border border-line bg-card p-5">
+      <span className="grid size-10 place-items-center rounded-2xl bg-paper text-clasp shadow-[inset_0_0_0_1px_var(--color-line)]">{icon}</span>
+      <p className="mt-4 font-medium">{title}</p>
+      <p className="mt-1.5 text-pretty text-sm leading-relaxed text-mute">{children}</p>
+    </div>
+  );
+}
+function IconRefresh() {
+  return <Icon><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8" /><path d="M4 4v4h4" /><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16" /><path d="M20 20v-4h-4" /></Icon>;
+}
+function IconPulse() {
+  return <Icon><path d="M3 12h4l2.5-6 5 12 2.5-6H21" /></Icon>;
 }
