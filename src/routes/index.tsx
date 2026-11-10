@@ -148,8 +148,8 @@ function Home() {
           </div>
         </Section>
 
-        <Section id="faq" kicker="FAQ" title="Questions.">
-          <dl className="grid gap-3 md:grid-cols-2">
+        <Section id="faq" kicker="FAQ" title="Questions." center>
+          <div className="mx-auto grid max-w-2xl gap-3">
             <Faq q="What does it cost?">Hasp is free. NEAR Intents takes 0.25%, and that is already in the price the buyer sees.</Faq>
             <Faq q="Who holds the money?">Nobody. It goes from the buyer to you through NEAR Intents. Hasp never touches it.</Faq>
             <Faq q="What if a payment fails?">The buyer gets their coins back to their own address, automatically.</Faq>
@@ -158,7 +158,7 @@ function Home() {
             <Faq q="What do I need?">A NEAR account, like yourname.near. That is where your USDC goes.</Faq>
             <Faq q="Does it work on my website?">Yes. Any page that can hold one line of HTML: WordPress, Webflow, Shopify pages, or your own code.</Faq>
             <Faq q="Can I use it for many products?">Yes. Make one button per product, each with its own price.</Faq>
-          </dl>
+          </div>
         </Section>
 
         <footer className="mt-16 flex flex-col gap-2 border-t border-line pt-6 text-sm text-mute md:flex-row md:justify-between">
@@ -282,11 +282,11 @@ function ButtonMaker({ ready }: { ready: boolean }) {
   );
 }
 
-function Section({ id, kicker, title, children }: { id: string; kicker: string; title: string; children: ReactNode }) {
+function Section({ id, kicker, title, center = false, children }: { id: string; kicker: string; title: string; center?: boolean; children: ReactNode }) {
   return (
     <section id={id} className="mt-16 scroll-mt-8 border-t border-line pt-10 md:mt-20">
-      <p className="text-xs uppercase tracking-[0.14em] text-mute">{kicker}</p>
-      <h2 className="mt-3 mb-6 font-display text-3xl text-balance md:text-4xl">{title}</h2>
+      <p className={`text-xs uppercase tracking-[0.14em] text-mute ${center ? "text-center" : ""}`}>{kicker}</p>
+      <h2 className={`mt-3 mb-6 font-display text-3xl text-balance md:text-4xl ${center ? "text-center" : ""}`}>{title}</h2>
       {children}
     </section>
   );
@@ -316,10 +316,13 @@ function Field({ label, hint, children }: { label: string; hint: string; childre
 
 function Faq({ q, children }: { q: string; children: ReactNode }) {
   return (
-    <div className="rounded-xl border border-line bg-card px-5 py-4">
-      <dt className="font-medium">{q}</dt>
-      <dd className="mt-1 text-pretty text-sm leading-relaxed text-mute">{children}</dd>
-    </div>
+    <details className="faq group rounded-xl border border-line bg-card px-5 open:border-ink/30">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-medium [&::-webkit-details-marker]:hidden">
+        {q}
+        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-paper text-lg leading-none text-clasp transition-transform duration-300 group-open:rotate-45" aria-hidden="true">+</span>
+      </summary>
+      <p className="-mt-1 pb-4 text-pretty text-sm leading-relaxed text-mute">{children}</p>
+    </details>
   );
 }
 
