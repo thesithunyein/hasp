@@ -57,7 +57,7 @@ function Home() {
   }, [ready]);
 
   return (
-    <main className="min-h-screen bg-paper text-ink">
+    <main className="glow min-h-screen text-ink">
       <div className="mx-auto max-w-5xl px-5 py-6 md:px-10 md:py-10">
         <nav className="flex items-center justify-between gap-4">
           <a href="/" className="flex items-center gap-3">
@@ -82,22 +82,36 @@ function Home() {
               <a href="#make" className="rounded-full bg-ink px-6 py-3 text-on-clasp hover:bg-clasp">Get your button</a>
               <a href="/shop.html" className="rounded-full border border-line bg-card px-6 py-3 hover:border-ink">See a demo shop</a>
             </div>
-            <p className="mt-6 text-sm text-mute">Free · No sign-up · We never hold your money</p>
+            <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-mute">
+              <li className="flex items-center gap-2"><IconCheck />Free</li>
+              <li className="flex items-center gap-2"><IconUser />No sign-up</li>
+              <li className="flex items-center gap-2"><IconShield />We never hold your money</li>
+            </ul>
           </div>
-          <div className="md:col-span-5">
-            <DemoProduct />
+          <div className="relative md:col-span-5">
+            <FlowArt />
+            <div className="relative -mt-6">
+              <DemoProduct />
+            </div>
           </div>
         </section>
 
-        <p className="mt-14 border-y border-line py-4 text-center text-sm text-mute">
-          Pay with NEAR · USDC · USDT · ETH · SOL · BTC · and 200+ more coins on 30+ chains
-        </p>
+        <div className="mt-14 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 border-y border-line py-5 text-sm text-mute">
+          <span>Pay with</span>
+          {COINS.map((c) => (
+            <span key={c.t} className="flex items-center gap-2 text-ink">
+              <CoinBadge {...c} size={26} />
+              {c.t}
+            </span>
+          ))}
+          <span>and 200+ more on 30+ chains</span>
+        </div>
 
         <Section id="how" kicker="How it works" title="Three steps.">
           <ol className="grid gap-3 md:grid-cols-3">
-            <Step n="1" title="Paste one line">Add your button to any website. No server, no account.</Step>
-            <Step n="2" title="Buyer picks a coin">They pay from the wallet they already use.</Step>
-            <Step n="3" title="You get USDC">The exact amount lands in your NEAR wallet, in about a minute.</Step>
+            <Step icon={<IconCode />} n="1" title="Paste one line">Add your button to any website. No server, no account.</Step>
+            <Step icon={<IconCoins />} n="2" title="Buyer picks a coin">They pay from the wallet they already use.</Step>
+            <Step icon={<IconWallet />} n="3" title="You get USDC">The exact amount lands in your NEAR wallet, in about a minute.</Step>
           </ol>
         </Section>
 
@@ -151,14 +165,19 @@ dry run  nothing sent (add --send to pay)`}
 
 function DemoProduct() {
   return (
-    <div className="rounded-card border border-line bg-card p-6 shadow-[0_20px_60px_-30px_rgba(26,23,20,0.35)]">
-      <p className="text-xs uppercase tracking-[0.14em] text-mute">Try it for real</p>
+    <div className="tilt rounded-card border border-line bg-card p-6">
+      <div className="flex items-center justify-between">
+        <p className="text-xs uppercase tracking-[0.14em] text-mute">Try it for real</p>
+        <span className="flex items-center gap-1.5 rounded-full bg-[#e5f1e8] px-2.5 py-1 text-[11px] text-[#1d5b36]">
+          <span className="size-1.5 rounded-full bg-[#2f8a55]" />Live on mainnet
+        </span>
+      </div>
       <p className="mt-3 font-display text-3xl">Send a $1 tip</p>
       <p className="mt-2 text-sm leading-relaxed text-mute">
         Pay with any coin you have. It goes to {DEMO_TO}, who built Hasp.
       </p>
       <div className="mt-5 min-h-12" data-hasp-to={DEMO_TO} data-hasp-usd="1" data-hasp-item="A tip for Hasp" data-hasp-label="Tip $1" />
-      <p className="mt-4 text-xs text-mute">This is a real payment on NEAR mainnet.</p>
+      <p className="mt-4 flex items-center gap-2 text-xs text-mute"><IconShield />Paid out in USDC through NEAR Intents.</p>
     </div>
   );
 }
@@ -244,11 +263,14 @@ function Section({ id, kicker, title, children }: { id: string; kicker: string; 
   );
 }
 
-function Step({ n, title, children }: { n: string; title: string; children: ReactNode }) {
+function Step({ icon, n, title, children }: { icon: ReactNode; n: string; title: string; children: ReactNode }) {
   return (
-    <li className="rounded-card border border-line bg-card p-5">
-      <p className="font-display text-2xl text-clasp">{n}</p>
-      <p className="mt-2 font-medium">{title}</p>
+    <li className="rounded-card border border-line bg-card p-5 transition-transform duration-300 hover:-translate-y-0.5">
+      <div className="flex items-center justify-between">
+        <span className="grid size-11 place-items-center rounded-2xl bg-paper text-clasp shadow-[inset_0_0_0_1px_var(--color-line)]">{icon}</span>
+        <span className="font-display text-xl text-line">{n}</span>
+      </div>
+      <p className="mt-4 font-medium">{title}</p>
       <p className="mt-2 text-pretty text-sm leading-relaxed text-mute">{children}</p>
     </li>
   );
@@ -271,4 +293,104 @@ function Faq({ q, children }: { q: string; children: ReactNode }) {
       <dd className="mt-1 text-pretty text-sm leading-relaxed text-mute">{children}</dd>
     </div>
   );
+}
+
+/* ---------- art and icons: inline SVG, no image files ---------- */
+
+const COINS = [
+  { t: "NEAR", bg: "#1a1714", fg: "#fbfaf6" },
+  { t: "ETH", bg: "#5b6bb5", fg: "#ffffff" },
+  { t: "SOL", bg: "#6c4bd6", fg: "#ffffff" },
+  { t: "BTC", bg: "#e08a2c", fg: "#ffffff" },
+  { t: "USDT", bg: "#2f8a74", fg: "#ffffff" },
+];
+
+function CoinBadge({ t, bg, fg, size = 28 }: { t: string; bg: string; fg: string; size?: number }) {
+  const id = `g-${t}`;
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
+      <defs>
+        <radialGradient id={id} cx="35%" cy="30%" r="75%">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.35" />
+          <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx="20" cy="20" r="19" fill={bg} />
+      <circle cx="20" cy="20" r="19" fill={`url(#${id})`} />
+      <circle cx="20" cy="20" r="15.5" fill="none" stroke={fg} strokeOpacity="0.25" />
+      <text x="20" y="24" textAnchor="middle" fontSize={t.length > 3 ? 9 : 11} fontWeight="600" fill={fg} fontFamily="Outfit, system-ui, sans-serif">{t}</text>
+    </svg>
+  );
+}
+
+/** Coins from different chains flow into one USDC coin. */
+function FlowArt() {
+  const starts = [
+    { x: 40, y: 40 },
+    { x: 24, y: 104 },
+    { x: 40, y: 168 },
+    { x: 96, y: 22 },
+    { x: 96, y: 186 },
+  ];
+  return (
+    <svg viewBox="0 0 400 210" className="w-full" role="img" aria-label="Coins from many chains turn into USDC">
+      <defs>
+        <linearGradient id="usdc-face" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#4f8fe0" />
+          <stop offset="1" stopColor="#2563c9" />
+        </linearGradient>
+        <radialGradient id="usdc-shine" cx="35%" cy="28%" r="70%">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.45" />
+          <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+        </radialGradient>
+        <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="6" stdDeviation="7" floodColor="#1a1714" floodOpacity="0.18" />
+        </filter>
+      </defs>
+      {starts.map((p, i) => (
+        <path key={i} className="flow-line" d={`M${p.x + 18} ${p.y} C ${200} ${p.y}, ${210} 104, ${300} 104`} fill="none" stroke="#9a5b32" strokeOpacity="0.35" strokeWidth="1.5" />
+      ))}
+      {COINS.map((c, i) => (
+        <g key={c.t} className="coin-float" filter="url(#soft)">
+          <g transform={`translate(${starts[i].x - 18} ${starts[i].y - 18}) scale(0.9)`}>
+            <CoinBadge {...c} size={40} />
+          </g>
+        </g>
+      ))}
+      <circle className="pulse-ring" cx="330" cy="104" r="34" fill="none" stroke="#2563c9" strokeWidth="2" />
+      <g filter="url(#soft)">
+        <circle cx="330" cy="104" r="34" fill="url(#usdc-face)" />
+        <circle cx="330" cy="104" r="34" fill="url(#usdc-shine)" />
+        <circle cx="330" cy="104" r="27" fill="none" stroke="#ffffff" strokeOpacity="0.4" />
+        <text x="330" y="110" textAnchor="middle" fontSize="15" fontWeight="600" fill="#ffffff" fontFamily="Outfit, system-ui, sans-serif">USDC</text>
+      </g>
+      <text x="330" y="160" textAnchor="middle" fontSize="11" fill="#6e675f" fontFamily="Outfit, system-ui, sans-serif">in your NEAR wallet</text>
+    </svg>
+  );
+}
+
+function Icon({ children }: { children: ReactNode }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {children}
+    </svg>
+  );
+}
+function IconCode() {
+  return <Icon><path d="m8 8-4 4 4 4" /><path d="m16 8 4 4-4 4" /><path d="m13.5 5-3 14" /></Icon>;
+}
+function IconCoins() {
+  return <Icon><ellipse cx="9" cy="7" rx="5" ry="2.5" /><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7" /><path d="M10 15.4c.9 1.2 2.9 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4" /><path d="M20 15v3.5c0 1.4-2.2 2.5-5 2.5-2.1 0-3.9-.6-4.6-1.5" /></Icon>;
+}
+function IconWallet() {
+  return <Icon><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H17a1 1 0 0 1 1 1v2" /><rect x="4" y="8" width="16" height="11" rx="2.5" /><path d="M16 13.5h.01" /><path d="M20 11h-3.5a2.5 2.5 0 0 0 0 5H20" /></Icon>;
+}
+function IconCheck() {
+  return <span className="text-clasp"><Icon><circle cx="12" cy="12" r="9" /><path d="m8.5 12.2 2.3 2.3 4.7-4.9" /></Icon></span>;
+}
+function IconUser() {
+  return <span className="text-clasp"><Icon><circle cx="12" cy="8.5" r="3.5" /><path d="M5 20c.9-3.4 3.7-5.5 7-5.5s6.1 2.1 7 5.5" /></Icon></span>;
+}
+function IconShield() {
+  return <span className="text-clasp"><Icon><path d="M12 3.5 5 6.2v5.3c0 4.3 2.9 7.6 7 9 4.1-1.4 7-4.7 7-9V6.2z" /><path d="m9 12 2.2 2.2L15.5 10" /></Icon></span>;
 }
