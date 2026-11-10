@@ -9,7 +9,7 @@ const NAMED = /^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/;
 
 declare global {
   interface Window {
-    Hasp?: { scan: () => void; open: (cfg: { to: string; usd: string; item?: string }) => void };
+    Hasp?: { scan: () => void; open: (cfg: { to: string; usd: string; item?: string; coin?: { chain: string; symbol: string } }) => void };
   }
 }
 
@@ -113,7 +113,7 @@ function Home() {
             </ol>
             <figure className="md:col-span-5">
               <CheckoutPreview />
-              <figcaption className="mt-3 text-center text-xs uppercase tracking-[0.14em] text-mute">What your buyer sees</figcaption>
+              <figcaption className="mt-3 text-center text-xs uppercase tracking-[0.14em] text-mute">What your buyer sees · try it</figcaption>
             </figure>
           </div>
         </Section>
@@ -174,39 +174,75 @@ function Home() {
   );
 }
 
-/** A still picture of the checkout window, for the hero. Not a live button. */
+const TEST = { to: "sithunyein.near", usd: "1", item: "Test payment" };
+
+/** The checkout window, live: each coin opens the real checkout on that coin, for a $1 test. */
 function CheckoutPreview() {
   const rows = [
-    { c: COINS[0], name: "NEAR", chain: "NEAR", amt: "1.41" },
-    { c: { t: "USDC", bg: "#2563c9", fg: "#ffffff" }, name: "USDC", chain: "Base", amt: "5.07" },
-    { c: COINS[1], name: "ETH", chain: "Arbitrum", amt: "0.0024" },
+    { c: COINS[0], name: "NEAR", chain: "NEAR", pick: { chain: "near", symbol: "wNEAR" } },
+    { c: { t: "USDC", bg: "#2563c9", fg: "#ffffff" }, name: "USDC", chain: "Base", pick: { chain: "base", symbol: "USDC" } },
+    { c: COINS[1], name: "ETH", chain: "Arbitrum", pick: { chain: "arb", symbol: "ETH" } },
   ];
+  const [prices, setPrices] = useState<Record<string, number>>({});
+  useEffect(() => {
+    let live = true;
+    fetch("https://1click.chaindefuser.com/v0/tokens")
+      .then((r) => r.json())
+      .then((tokens: { blockchain: string; symbol: string; price?: number }[]) => {
+        if (!live) return;
+        const next: Record<string, number> = {};
+        for (const t of tokens) if (t.price) next[`${t.blockchain}:${t.symbol}`] = t.price;
+        setPrices(next);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  function open(coin?: { chain: string; symbol: string }) {
+    window.Hasp?.open({ ...TEST, coin });
+  }
+
+  function estimate(key: string) {
+    const price = prices[key];
+    if (!price) return "…";
+    const n = Number(TEST.usd) / price;
+    return n < 1 ? n.toPrecision(2) : n.toFixed(2);
+  }
+
   return (
-    <div className="rounded-card border border-line bg-card p-4 shadow-[0_24px_60px_-36px_rgba(26,23,20,0.4)]" aria-hidden="true">
+    <div className="rounded-card border border-line bg-card p-4 shadow-[0_24px_60px_-36px_rgba(26,23,20,0.4)]">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-[0.14em] text-mute">Pay with crypto</p>
-          <p className="mt-1 font-display text-xl">$5 · Coffee beans</p>
+          <p className="mt-1 font-display text-xl">$1 · Test payment</p>
         </div>
-        <span className="grid size-8 place-items-center rounded-full bg-paper text-mute">×</span>
+        <span className="flex items-center gap-1.5 rounded-full bg-[#e5f1e8] px-2.5 py-1 text-[11px] text-[#1d5b36]">
+          <span className="size-1.5 rounded-full bg-[#2f8a55]" />Live
+        </span>
       </div>
       <p className="mt-2 text-sm text-mute">Pick a coin to pay with.</p>
       <ul className="mt-2 grid gap-1.5">
-        {rows.map((r, i) => (
-          <li key={r.name + r.chain} className={`flex items-center justify-between rounded-xl border px-3 py-2 ${i === 0 ? "border-ink" : "border-line"}`}>
-            <span className="flex items-center gap-3">
-              <CoinBadge {...r.c} size={28} />
-              <span>
-                <span className="block text-sm font-medium">{r.name}</span>
-                <span className="block text-xs text-mute">on {r.chain}</span>
+        {rows.map((r) => (
+          <li key={r.name + r.chain}>
+            <button type="button" onClick={() => open(r.pick)} className="flex w-full items-center justify-between rounded-xl border border-line px-3 py-2 text-left transition-colors hover:border-ink">
+              <span className="flex items-center gap-3">
+                <CoinBadge {...r.c} size={28} />
+                <span>
+                  <span className="block text-sm font-medium">{r.name}</span>
+                  <span className="block text-xs text-mute">on {r.chain}</span>
+                </span>
               </span>
-            </span>
-            <span className="text-sm tabular-nums text-mute">≈ {r.amt}</span>
+              <span className="text-sm tabular-nums text-mute">≈ {estimate(`${r.pick.chain}:${r.pick.symbol}`)}</span>
+            </button>
           </li>
         ))}
       </ul>
-      <div className="mt-3 rounded-full bg-ink py-2.5 text-center text-sm text-on-clasp">Continue</div>
-      <p className="mt-2.5 flex items-center justify-center gap-2 text-xs text-mute"><IconShield />Powered by NEAR Intents</p>
+      <button type="button" onClick={() => open()} className="mt-3 w-full rounded-full bg-ink py-2.5 text-center text-sm text-on-clasp hover:bg-clasp">
+        See all 200+ coins
+      </button>
+      <p className="mt-2.5 text-center text-xs leading-relaxed text-mute">A real $1 test payment. Nothing is charged until you send.</p>
     </div>
   );
 }

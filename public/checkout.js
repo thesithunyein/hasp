@@ -292,9 +292,10 @@
     ]);
   }
 
-  function Checkout(cfg, origin) {
+  function Checkout(cfg, origin, pick) {
     this.cfg = cfg;
     this.origin = origin;
+    this.pick = pick || null;
     this.key = "hasp:" + cfg.to + ":" + cfg.amount + ":" + (cfg.item || "");
     this.timer = null;
   }
@@ -312,7 +313,16 @@
     document.addEventListener("keydown", this.onKey);
     var pending = load(this.key);
     if (pending && pending.depositAddress && Date.parse(pending.deadline) > Date.now()) this.showPay(pending);
-    else this.showCoins();
+    else {
+      this.showCoins();
+      var pick = this.pick;
+      if (pick && pick.chain && pick.symbol) {
+        getTokens().then(function (tokens) {
+          var found = (tokens || []).filter(function (t) { return t.blockchain === pick.chain && t.symbol === pick.symbol; })[0];
+          if (found && self.host && self.host.isConnected) self.showRefund(found);
+        }).catch(function () {});
+      }
+    }
   };
 
   Checkout.prototype.close = function () {
@@ -504,10 +514,11 @@
   var script = document.currentScript;
   window.Hasp = {
     core: core,
+    /** Opens the checkout. source.coin = { chain: "base", symbol: "USDC" } skips straight to that coin. */
     open: function (source) {
       var cfg = readConfig(source || {});
       if (cfg.error) throw new Error(cfg.error);
-      new Checkout(cfg, null).open();
+      new Checkout(cfg, null, source && source.coin).open();
     },
     scan: scan,
   };
