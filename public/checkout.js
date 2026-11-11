@@ -429,6 +429,7 @@
       field("To this address", p.depositAddress),
       p.memo ? field("Memo (you must add this)", p.memo) : null,
       el("p", { class: "mute", text: "Send from any wallet" + (left ? " within " + left : "") + ". A little extra is fine; it comes back to you." }),
+      p.chain === "near" ? el("p", { class: "mute", text: "Your wallet may say this account does not exist yet. That is normal: it is created when your NEAR arrives." }) : null,
       state,
       el("p", null, [sent]), txWrap,
       el("p", null, [restart]),

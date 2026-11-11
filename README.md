@@ -98,6 +98,14 @@ The page talks to the 1Click API directly from the buyer's browser. Hasp's own s
 
 ## Proof on mainnet
 
+Real payments through the checkout on thehasp.vercel.app:
+
+| When (UTC) | Paid with | Buyer sent | Shop received | NEAR Intents | Transactions |
+|---|---|---|---|---|---|
+| 11 Nov 2026, 04:47 | NEAR on NEAR | 0.27568 NEAR to the one-time address `b5e6ba5e…a7325f` | **1.000000 USDC** to `sithunyein.near` | [`SUCCESS`](https://1click.chaindefuser.com/v0/status?depositAddress=b5e6ba5e1edab1e98a11169b08dbfb8c6d67262cfe119410bcb7ebc80fa7325f), `EXACT_OUTPUT`, referral `hasp` | sent [BEAUTyKT…](https://nearblocks.io/txns/BEAUTyKTmKsemXRNNArivC9cxfMocc8kTewGiik6SUXF), paid out [HkfRBcDB…](https://nearblocks.io/txns/HkfRBcDBe6sqXh6ZxaVb14E4KWu3n1shMSHWnRMiCvNN) |
+
+The quote asked for 0.273674 NEAR plus the 1% slippage buffer; the widget rounds the amount up, and the part of the 0.27568 NEAR that was not needed goes back to the buyer's refund address. The payout shows on [the Payments page for sithunyein.near](https://thehasp.vercel.app/payments?account=sithunyein.near).
+
 Live quotes on 11 November 2026 for exactly 1.00 USDC to `sithunyein.near` (dry, nothing sent):
 
 | Buyer pays with | Quote | Estimated time |
