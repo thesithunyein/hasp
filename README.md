@@ -35,6 +35,7 @@ No wallet is needed for steps 1 to 3. Nothing moves until a buyer sends coins to
 | 1. Open [the example shop](https://thehasp.vercel.app/shop.html), choose **Pay $1**, pick a coin, give a refund address on that coin's chain | A one-time deposit address from NEAR Intents and the exact amount to send, for example `0.286647 NEAR`. The status line reads "Waiting for your payment…". The page is plain HTML with no framework: two `<script>` tags, two prices. |
 | 2. Open [thehasp.vercel.app](https://thehasp.vercel.app) and, under **Get a button**, enter a NEAR account and a price | The line to paste, and a live preview of the button it makes |
 | 3. Under **Pricing** and **FAQ** on the same page | What a shop pays (nothing to Hasp, 0.25% to NEAR Intents inside the buyer's price) and how refunds work |
+| 3b. Open [thehasp.vercel.app/payments](https://thehasp.vercel.app/payments) and enter a NEAR account that has been paid, for example `sithunyein.near` once a payment has settled | Every USDC payment NEAR Intents sent to that account, newest first, with totals and a NearBlocks receipt for each |
 | 4. `node scripts/hasp-agent.mjs buy --to sithunyein.near --usd 1 --item "A coffee"` | `rule` allows it, then a live mainnet `quote`, then `dry run  nothing sent` |
 | 5. `node scripts/hasp-agent.mjs buy --to stranger.near --usd 1` | `STOPPED: stranger.near is not on the agent's list of merchants`, exit code 2, no quote asked for |
 | 6. `npm ci && npm test` | 17 tests pass: prices, accounts, refund addresses, the coin list, the exact quote, the agent's rule |
@@ -127,13 +128,14 @@ The rule is the agent's own discipline, not a lock: a key that can send NEAR can
 - Without a NEAR Intents partner key, 1Click adds a 0.25% fee, inside the quoted amount the buyer pays. Hasp adds no fee.
 - A buyer who sends less than the quote, or after the address goes cold, is refunded to the address they gave. Refunds are handled by NEAR Intents, not by Hasp.
 - The refund address check is a format check per chain. It cannot know whether the buyer controls that address.
-- There is no list of a shop's past payments yet. The shop sees each payment arrive in its NEAR account.
+- The Payments page lists every USDC payment NEAR Intents sent to an account, including ones that did not come from a Hasp button: 1Click does not mark which app asked for a quote in the payout.
 
 ## Code
 
 ```text
 public/checkout.js            the widget: coin list, quote, deposit address, status, refund address
 public/shop.html              a plain HTML page using it
+src/routes/payments.tsx       a shop's payments: USDC received from NEAR Intents, read from FastNEAR
 src/routes/index.tsx          the site: live button, button maker, how it works
 src/components/mark.tsx       the mark
 scripts/hasp-agent.mjs        an agent paying at a checkout, inside its rule
