@@ -74,4 +74,6 @@ jobs:
             echo "::error title=npm run dev::$(tail -30 dev.out | tr '\n' '|' | cut -c1-6000)"
             exit 1
           fi
-          curl -sf -o checkout.js http://127.0.0.1:8080/checkout.js && echo "::notice title=npm run dev::the site and /checkout.js answered on port 8080"
+          curl -sf -o checkout.js http://127.0.0.1:8080/checkout.js
+          curl -sf -o payments.html http://127.0.0.1:8080/payments && grep -q "See what you were paid" payments.html
+          echo "::notice title=npm run dev::the site, /checkout.js and /payments answered on port 8080"

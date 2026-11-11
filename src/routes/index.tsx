@@ -67,6 +67,7 @@ function Home() {
             <a href="#how" className="hidden hover:text-ink sm:inline">How it works</a>
             <a href="#pricing" className="hidden hover:text-ink sm:inline">Pricing</a>
             <a href="#faq" className="hidden hover:text-ink md:inline">FAQ</a>
+            <a href="/payments" className="hover:text-ink">Payments</a>
             <a href="#make" className="rounded-full bg-ink px-4 py-2 text-on-clasp hover:bg-clasp">Get a button</a>
           </div>
         </nav>
@@ -153,7 +154,7 @@ function Home() {
             <Faq q="What does it cost?">Hasp is free. NEAR Intents takes 0.25%, and that is already in the price the buyer sees.</Faq>
             <Faq q="Who holds the money?">Nobody. It goes from the buyer to you through NEAR Intents. Hasp never touches it.</Faq>
             <Faq q="What if a payment fails?">The buyer gets their coins back to their own address, automatically.</Faq>
-            <Faq q="How do I know I was paid?">Check your NEAR wallet. Before you ship anything, trust your wallet, not the button.</Faq>
+            <Faq q="How do I know I was paid?">Open your Payments page, or check your NEAR wallet. Before you ship anything, trust those, not the button.</Faq>
             <Faq q="Which coins work?">200+ coins on 30+ chains, including NEAR, ETH, SOL, BTC, USDC and USDT.</Faq>
             <Faq q="What do I need?">A NEAR account, like yourname.near. That is where your USDC goes.</Faq>
             <Faq q="Does it work on my website?">Yes. Any page that can hold one line of HTML: WordPress, Webflow, Shopify pages, or your own code.</Faq>
@@ -166,6 +167,7 @@ function Home() {
           <p className="flex gap-4">
             <a className="hover:text-ink" href="#make">Get a button</a>
             <a className="hover:text-ink" href="#faq">FAQ</a>
+            <a className="hover:text-ink" href="/payments">Payments</a>
             <a className="hover:text-ink" href="https://github.com/thesithunyein/hasp">Open source</a>
           </p>
         </footer>
@@ -310,7 +312,10 @@ function ButtonMaker({ ready }: { ready: boolean }) {
             )}
           </div>
           {okTo && okUsd ? (
-            <p className="mt-3 text-xs text-mute">This preview is live. Paying it sends real money to {account}.</p>
+            <p className="mt-3 text-xs text-mute">
+              This preview is live. Paying it sends real money to {account}. See what you were paid on{" "}
+              <a className="underline hover:text-ink" href={`/payments?account=${encodeURIComponent(account)}`}>your payments page</a>.
+            </p>
           ) : null}
         </div>
       </div>
