@@ -180,8 +180,8 @@ const TEST = { to: "sithunyein.near", usd: "1", item: "Test payment" };
 function CheckoutPreview() {
   const rows = [
     { c: COINS[0], name: "NEAR", chain: "NEAR", pick: { chain: "near", symbol: "wNEAR" } },
-    { c: { t: "USDC", bg: "#2563c9", fg: "#ffffff", chain: { letter: "B", color: "#2463eb" } }, name: "USDC", chain: "Base", pick: { chain: "base", symbol: "USDC" } },
-    { c: { ...COINS[1], chain: { letter: "A", color: "#2d6fd6" } }, name: "ETH", chain: "Arbitrum", pick: { chain: "arb", symbol: "ETH" } },
+    { c: { t: "USDC", bg: "#2563c9", fg: "#ffffff" }, name: "USDC", chain: "Base", pick: { chain: "base", symbol: "USDC" } },
+    { c: COINS[1], name: "ETH", chain: "Arbitrum", pick: { chain: "arb", symbol: "ETH" } },
   ];
   const [prices, setPrices] = useState<Record<string, number>>({});
   useEffect(() => {
@@ -372,8 +372,7 @@ const COINS = [
   { t: "USDT", bg: "#2f8a74", fg: "#ffffff" },
 ];
 
-/** Original coin badges: colour and ticker, plus a chain mark (B for Base, A for Arbitrum) when the coin is not the chain's own. */
-function CoinBadge({ t, bg, fg, size = 28, chain }: { t: string; bg: string; fg: string; size?: number; chain?: { letter: string; color: string } }) {
+function CoinBadge({ t, bg, fg, size = 28 }: { t: string; bg: string; fg: string; size?: number }) {
   const id = `g-${t}`;
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
@@ -387,12 +386,6 @@ function CoinBadge({ t, bg, fg, size = 28, chain }: { t: string; bg: string; fg:
       <circle cx="20" cy="20" r="19" fill={`url(#${id})`} />
       <circle cx="20" cy="20" r="15.5" fill="none" stroke={fg} strokeOpacity="0.25" />
       <text x="20" y="24" textAnchor="middle" fontSize={t.length > 3 ? 9 : 11} fontWeight="600" fill={fg} fontFamily="Outfit, system-ui, sans-serif">{t}</text>
-      {chain ? (
-        <g>
-          <circle cx="32" cy="32" r="8" fill={chain.color} stroke="#fbfaf6" strokeWidth="2" />
-          <text x="32" y="35.2" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#ffffff" fontFamily="Outfit, system-ui, sans-serif">{chain.letter}</text>
-        </g>
-      ) : null}
     </svg>
   );
 }

@@ -98,47 +98,6 @@
     });
   }
 
-  /* Coin badges: the coin's colour and ticker, with a small chain mark when the coin is not the
-     chain's own (USDC on Base, ETH on Arbitrum). Original designs, not the projects' logos. */
-  var COIN_COLORS = {
-    NEAR: "#1a1714", ETH: "#5b6bb5", WETH: "#5b6bb5", USDC: "#2563c9", USDT: "#2f8a74", SOL: "#6c4bd6",
-    BTC: "#e08a2c", WBTC: "#e08a2c", CBBTC: "#e08a2c", DAI: "#d99a1e", ARB: "#2d6fd6", OP: "#e2483d", POL: "#7b4fd6",
-    AVAX: "#d8443a", BNB: "#d9a91f", TRX: "#c9302c", TON: "#2e8bd9", DOGE: "#b89a3e", XRP: "#2b3138",
-    ZEC: "#d9a43a", SUI: "#4a9fe8", APT: "#2b3138", XLM: "#2b3138", LTC: "#5a7fb5", ADA: "#2a5bd0", BCH: "#3f9c5a",
-  };
-  var CHAIN_COLORS = {
-    near: "#1a1714", eth: "#5b6bb5", base: "#2463eb", arb: "#2d6fd6", sol: "#6c4bd6", btc: "#e08a2c", op: "#e2483d",
-    pol: "#7b4fd6", avax: "#d8443a", bsc: "#d9a91f", tron: "#c9302c", ton: "#2e8bd9", gnosis: "#3e6957",
-    bera: "#8a5a2b", sui: "#4a9fe8", aptos: "#2b3138", stellar: "#2b3138", xrp: "#2b3138", doge: "#b89a3e",
-    zec: "#d9a43a", ltc: "#5a7fb5", bch: "#3f9c5a", cardano: "#2a5bd0", monad: "#6e54d9", scroll: "#c8935a",
-  };
-  var NATIVE = { near: "NEAR", eth: "ETH", sol: "SOL", btc: "BTC", ton: "TON", tron: "TRX", doge: "DOGE", xrp: "XRP",
-    zec: "ZEC", sui: "SUI", aptos: "APT", stellar: "XLM", ltc: "LTC", bch: "BCH", cardano: "ADA", avax: "AVAX", bsc: "BNB", pol: "POL" };
-
-  function hueColor(text) {
-    var h = 0;
-    for (var i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) % 360;
-    return "hsl(" + h + ",45%,42%)";
-  }
-
-  /** SVG markup for a coin badge. Tickers are reduced to letters and digits, so nothing is injected. */
-  function coinBadge(symbol, chain, size) {
-    var sym = String(symbol || "").replace(/^w(?=NEAR$)/, "").toUpperCase();
-    var label = sym.replace(/[^A-Z0-9]/g, "").slice(0, 4) || "?";
-    var fill = COIN_COLORS[sym] || hueColor(sym);
-    var native = NATIVE[chain] === sym;
-    var corner = native ? "" :
-      '<circle cx="31" cy="31" r="8" fill="' + (CHAIN_COLORS[chain] || hueColor(String(chain))) + '" stroke="#fbfaf6" stroke-width="2"/>' +
-      '<text x="31" y="34.2" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff" font-family="Outfit,system-ui,sans-serif">' +
-      chainName(chain).replace(/[^A-Za-z]/g, "").charAt(0).toUpperCase() + "</text>";
-    return '<svg width="' + (size || 32) + '" height="' + (size || 32) + '" viewBox="0 0 40 40" aria-hidden="true">' +
-      '<circle cx="19" cy="19" r="17" fill="' + fill + '"/>' +
-      '<circle cx="19" cy="19" r="17" fill="url(#hasp-shine)"/>' +
-      '<circle cx="19" cy="19" r="13.5" fill="none" stroke="#fff" stroke-opacity=".28"/>' +
-      '<text x="19" y="' + (label.length > 3 ? 22 : 22.6) + '" text-anchor="middle" font-size="' + (label.length > 3 ? 8 : 10) + '" font-weight="600" fill="#fff" font-family="Outfit,system-ui,sans-serif">' + label + "</text>" +
-      corner + "</svg>";
-  }
-
   function quoteRequest(opts) {
     var hours = opts.chain === "btc" || opts.chain === "doge" || opts.chain === "ltc" || opts.chain === "bch" ? 3 : 1;
     return {
@@ -206,7 +165,7 @@
   var core = {
     API: API, USDC_NEAR: USDC_NEAR, validNearAccount: validNearAccount, usdToBase: usdToBase,
     chainName: chainName, coinName: coinName, refundProblem: refundProblem, payable: payable,
-    quoteRequest: quoteRequest, coinBadge: coinBadge, statusText: statusText, finalStatus: finalStatus, sendAmount: sendAmount, timeLeft: timeLeft,
+    quoteRequest: quoteRequest, statusText: statusText, finalStatus: finalStatus, sendAmount: sendAmount, timeLeft: timeLeft,
   };
 
   if (typeof document === "undefined") {
@@ -283,11 +242,9 @@
     ".mute{color:#6e675f}.err{color:#9d2c2c;margin-top:10px}",
     ".x{border:0;background:#efe9df;border-radius:999px;width:32px;height:32px;cursor:pointer;font-size:18px;color:#1a1714;flex:none}",
     ".grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}",
-    ".coin{display:flex;align-items:center;gap:10px;border:1px solid #e3ddd3;background:#fff;border-radius:12px;padding:9px 10px;text-align:left;cursor:pointer;color:#1a1714}",
-    ".coin .ic{flex:none;line-height:0}.coin .tx{min-width:0}",
+    ".coin{border:1px solid #e3ddd3;background:#fff;border-radius:12px;padding:10px;text-align:left;cursor:pointer;color:#1a1714}",
     ".coin:hover,.coin:focus-visible{border-color:#1a1714;outline:none}",
-    ".coin b{display:block;font-weight:500;font-size:14px}.coin .tx span{display:block;font-size:12px;color:#6e675f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
-    ".head{display:flex;align-items:center;gap:10px}.head .ic{line-height:0}",
+    ".coin b{display:block;font-weight:500}.coin span{font-size:12px;color:#6e675f}",
     "select,input{width:100%;margin-top:6px;border:1px solid #e3ddd3;border-radius:12px;padding:10px 12px;font-size:14px;background:#fff;color:#1a1714}",
     "label{display:block;margin-top:14px;font-size:13px;color:#6e675f}",
     ".go{width:100%;justify-content:center;margin-top:14px}",
@@ -302,14 +259,6 @@
     ".foot{margin-top:16px;font-size:12px;color:#6e675f}",
     ".foot a{color:#6e675f}",
   ].join("");
-
-  var SHINE = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="hasp-shine" cx="35%" cy="28%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs></svg>';
-
-  function badge(token, size) {
-    var span = el("span", { class: "ic" });
-    span.innerHTML = coinBadge(token.symbol, token.blockchain, size);
-    return span;
-  }
 
   function el(tag, attrs, children) {
     var node = document.createElement(tag);
@@ -356,9 +305,6 @@
     this.host = el("div");
     this.root = this.host.attachShadow({ mode: "open" });
     this.root.appendChild(el("style", { text: CSS }));
-    var defs = el("span");
-    defs.innerHTML = SHINE;
-    this.root.appendChild(defs);
     this.box = el("div", { class: "box", role: "dialog", "aria-modal": "true", "aria-label": "Pay with crypto" });
     this.veil = el("div", { class: "veil", on: { click: function (e) { if (e.target === self.veil) self.close(); } } }, [this.box]);
     this.root.appendChild(this.veil);
@@ -417,11 +363,8 @@
       list.slice(0, 8).forEach(function (t) {
         var est = t.price ? (Number(self.cfg.usd) / t.price) : null;
         grid.appendChild(el("button", { class: "coin", type: "button", on: { click: function () { self.showRefund(t); } } }, [
-          badge(t, 32),
-          el("span", { class: "tx" }, [
-            el("b", { text: coinName(t) }),
-            el("span", { text: "on " + chainName(t.blockchain) + (est ? " · ≈ " + (est < 1 ? est.toPrecision(3) : est.toFixed(2)) : "") }),
-          ]),
+          el("b", { text: coinName(t) }),
+          el("span", { text: "on " + chainName(t.blockchain) + (est ? " · about " + (est < 1 ? est.toPrecision(3) : est.toFixed(2)) : "") }),
         ]));
       });
       var select = el("select", { "aria-label": "Another coin" }, [el("option", { value: "", text: list.length + " coins" })]);
@@ -462,7 +405,7 @@
         .catch(function (e) { go.disabled = false; go.textContent = "Continue"; err.textContent = e.message; });
     });
     this.frame(coinName(token) + " on " + chainName(chain), this.heading(), [
-      el("div", { class: "head" }, [badge(token, 36), el("p", { class: "mute", text: "If anything goes wrong, your " + coinName(token) + " comes back here." })]),
+      el("p", { class: "mute", text: "If anything goes wrong, your " + coinName(token) + " comes back here." }),
       el("label", null, ["Your " + chainName(chain) + " address", input]),
       go, err, el("p", null, [back]),
     ]);
