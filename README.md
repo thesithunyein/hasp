@@ -12,6 +12,7 @@
   <a href="https://thehasp.vercel.app"><img src="https://img.shields.io/badge/site-thehasp.vercel.app-1a1714?style=flat-square" alt="Site"></a>
   <a href="https://github.com/thesithunyein/hasp/actions/workflows/ci.yml"><img src="https://github.com/thesithunyein/hasp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/settles%20on-NEAR%20Intents-9a5b32?style=flat-square" alt="NEAR Intents">
+  <a href="https://x.com/thesithunyein/status/2120411134130065516"><img src="https://img.shields.io/badge/demo-video-1a1714?style=flat-square" alt="Demo video"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-f3f0e8?style=flat-square" alt="MIT license"></a>
 </p>
 
@@ -21,6 +22,8 @@ A shop that wants crypto has to pick which chains and coins to accept, and its b
 <script src="https://thehasp.vercel.app/checkout.js"
         data-to="yourname.near" data-usd="5" data-item="A coffee"></script>
 ```
+
+Watch the 90-second demo: [x.com/thesithunyein/status/2120411134130065516](https://x.com/thesithunyein/status/2120411134130065516)
 
 ![The Hasp site: get paid in any coin, with the coins flowing into USDC in your NEAR wallet](docs/home.png)
 
