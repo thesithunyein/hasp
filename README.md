@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/logo.png" width="111" height="70" alt="Hasp">
+  <img src="docs/logo.png" width="96" height="96" alt="Hasp">
 </p>
 
 <h1 align="center">Hasp</h1>
@@ -21,6 +21,8 @@ A shop that wants crypto has to pick which chains and coins to accept, and its b
 <script src="https://thehasp.vercel.app/checkout.js"
         data-to="yourname.near" data-usd="5" data-item="A coffee"></script>
 ```
+
+![The Hasp site: get paid in any coin, with the coins flowing into USDC in your NEAR wallet](docs/home.png)
 
 It is the "universal checkout widget" from [Illia Polosukhin's list of things to build on NEAR](https://crypto.news/near-co-founder-pitches-ai-pets-private-trading/) (3 October 2026): customers pay through NEAR Intents with whatever wallet and chain holds their assets.
 
@@ -155,6 +157,7 @@ scripts/checkout.test.mjs     tests for the widget's logic
 scripts/hasp-agent.test.mjs   tests for the rule and the agent's refusals
 .github/workflows/ci.yml      tests, the agent against live Intents, and what a reviewer runs
 docs/logo.png                 the logo above
+docs/home.png                 the site's first screen
 ```
 
 `npm test` runs Hasp's tests. `npm run test:shell` runs the generated app shell's own tests; they read the Grok App Builder's workspace files under `.grok/`, which are not in this repository, so several fail here. None of them test Hasp.
