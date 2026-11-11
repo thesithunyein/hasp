@@ -28,6 +28,23 @@ It is the "universal checkout widget" from [Illia Polosukhin's list of things to
 
 Tracks: Agent Economy (`agents`) and Real-World Money (`realworld`).
 
+## The problem, and who it is for
+
+A shop that wants crypto has to guess which coin its buyers hold, and usually guesses wrong. One buyer has ETH on Arbitrum, the next has SOL, the next only NEAR. Listing five wallet addresses for five chains is confusing, and getting paid in a coin whose price moves is a risk for the seller. Most buyers leave before they pay.
+
+With Hasp, the buyer pays with whatever they already hold and the seller always receives the same thing: the exact price, in USDC, in one NEAR account.
+
+| Who | Why Hasp fits |
+|---|---|
+| Freelancers and creators paid from abroad: designers, developers, writers, artists | The client pays in any coin; the freelancer gets stable USDC, not a coin whose price swings |
+| Small online sellers with a crypto-holding audience: digital products, courses, templates | One line on any site (WordPress, Webflow, plain HTML), no payment company to sign up with, no monthly fee |
+| Creators and open-source projects taking tips | One "support me" button for every coin, instead of a list of addresses per chain |
+| Web3 projects, DAOs and events selling tickets, memberships or services | Their community holds many chains; they want one currency in one account |
+| People where card payments are hard to get | Anyone with crypto can pay them, and they receive dollars (USDC) with no bank in the middle. Local rules on receiving crypto still apply. |
+| AI agents buying services such as an API or a dataset | They pay at any Hasp checkout, inside limits a person sets (see For AI agents) |
+
+Who it is not for: shops whose buyers pay by card (a card processor is simpler for them), and shops that need invoices or automatic order fulfilment, which Hasp does not do yet.
+
 ## Try it
 
 No wallet is needed for steps 1 to 3. Nothing moves until a buyer sends coins to the address the quote gives.
